@@ -32,7 +32,7 @@ def get_config() -> Config:
         FastAPI(env.str("FASTAPI_HOST"), env.int("FASTAPI_PORT")),
         DataBase(
             env.str("DATABASE_DRIVER"),
-            env.str("DATABASE_USERNAME"),
+            env.str("DATABASE_USER"),
             env.str("DATABASE_PASSWORD"),
             env.str("DATABASE_HOST"),
             env.int("DATABASE_PORT"),
