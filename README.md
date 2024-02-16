@@ -2,7 +2,7 @@
 
 **For connect to DB at localhost:**
 
-```docker run --name postgresql -e POSTGRES_PASSWORD=password -e POSTGRES_USER=user -e POSTGRES_DB=db_name -p 5432:5432 -d postgres:13.4-alpine```
+```docker run --name postgresql -e POSTGRES_PASSWORD=password -e POSTGRES_USER=user -e POSTGRES_DB=db_name -p 5432:5432 -d postgres:16.2-alpine```
 
 **For start API**
 ```python main.py```
