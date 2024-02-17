@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from environs import Env
 
-env = Env()
-env.read_env(".env")
-
 
 @dataclass
 class FastAPI:
@@ -27,7 +24,9 @@ class Config:
     database: DataBase
 
 
-def get_config() -> Config:
+def get_config(path: str = ".env") -> Config:
+    env = Env()
+    env.read_env(path)
     return Config(
         FastAPI(env.str("FASTAPI_HOST"), env.int("FASTAPI_PORT")),
         DataBase(
