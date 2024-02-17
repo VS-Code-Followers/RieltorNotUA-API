@@ -1,40 +1,31 @@
-from dataclasses import dataclass
-from environs import Env
+from functools import lru_cache
+from os import getenv
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-@dataclass
-class FastAPI:
+class FastAPI(BaseModel):
     host: str
     port: int
 
 
-@dataclass
-class DataBase:
-    drivername: str
-    username: str
+class DataBase(BaseModel):
+    driver: str
+    user: str
     password: str
     host: str
     port: int
-    db_name: str
+    name: str
 
 
-@dataclass
-class Config:
+class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
-
-
-def get_config(path: str = ".env") -> Config:
-    env = Env()
-    env.read_env(path)
-    return Config(
-        FastAPI(env.str("FASTAPI_HOST"), env.int("FASTAPI_PORT")),
-        DataBase(
-            env.str("DATABASE_DRIVER"),
-            env.str("DATABASE_USER"),
-            env.str("DATABASE_PASSWORD"),
-            env.str("DATABASE_HOST"),
-            env.int("DATABASE_PORT"),
-            env.str("DATABASE_NAME"),
-        ),
+    model_config = SettingsConfigDict(
+        env_file=getenv("ENV_FILE", ".env"), env_nested_delimiter="_"
     )
+
+
+@lru_cache
+def get_config() -> Config:
+    return Config()
