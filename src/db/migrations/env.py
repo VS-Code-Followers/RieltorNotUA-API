@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 
 conf = get_config().database
 url = URL.create(
-    conf.drivername, conf.username, conf.password, conf.host, conf.port, conf.db_name
+    conf.driver, conf.user, conf.password, conf.host, conf.port, conf.name
 ).render_as_string(hide_password=False)
 
 config.set_main_option("sqlalchemy.url", url)
