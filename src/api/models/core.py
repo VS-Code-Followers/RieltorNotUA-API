@@ -12,6 +12,7 @@ class Location(BaseModel):
 
 class Offer(BaseModel):
     uuid: UUID
+    author_id: int
     name: str
     location: Location
     price: PositiveInt
