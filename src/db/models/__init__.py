@@ -18,6 +18,7 @@ class Offers(Base):
     type: Mapped[str] = mapped_column(VARCHAR(20))
     area: Mapped[float] = mapped_column(Float())
     name: Mapped[str] = mapped_column(VARCHAR(100))
+    description: Mapped[str] = mapped_column(VARCHAR(500))
     location: Mapped[dict] = mapped_column(JSON)
     price: Mapped[int] = mapped_column(Integer)
     floor: Mapped[int] = mapped_column(Integer)

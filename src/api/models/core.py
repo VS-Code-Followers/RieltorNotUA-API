@@ -16,6 +16,7 @@ class Offer(BaseModel):
     type: OfferType
     area: float
     name: str
+    description: str
     location: Location
     price: PositiveInt
     floor: NonNegativeInt
