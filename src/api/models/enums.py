@@ -15,6 +15,3 @@ class OfferType(Enum):
     HOUSE = "house"
     FLAT = "flat"
     OFFICE = "office"
-
-    def __repr__(self) -> str:
-        return self.value

@@ -2,7 +2,6 @@ from typing import Optional
 from uuid import UUID
 from pydantic import BaseModel, PositiveInt, NonNegativeInt, EmailStr
 from pydantic_extra_types.coordinate import Coordinate
-from .enums import OfferType
 
 
 class Location(BaseModel):
@@ -13,7 +12,7 @@ class Location(BaseModel):
 class Offer(BaseModel):
     uuid: UUID
     author_id: int
-    type: OfferType
+    type: str
     area: float
     name: str
     description: str
