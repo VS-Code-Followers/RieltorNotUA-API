@@ -3,7 +3,7 @@ from os import getenv
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 
 class FastAPI(BaseModel):
@@ -33,7 +33,7 @@ def get_config() -> Config:
     return Config()
 
 
-def get_engine(config: DataBase) -> AsyncEngine:
+def get_engine(config: DataBase = get_config().database) -> AsyncEngine:
     return create_async_engine(
         URL.create(
             config.driver,
@@ -44,7 +44,3 @@ def get_engine(config: DataBase) -> AsyncEngine:
             config.name,
         )
     )
-
-
-def get_session_pool():
-    return async_sessionmaker(bind=get_engine(get_config()))
