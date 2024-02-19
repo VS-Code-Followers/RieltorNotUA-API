@@ -2,8 +2,10 @@ from enum import Enum
 
 
 class Filters(Enum):
+    ALL = "all"
     BY_TYPE = "type"
-    BY_REALTOR = "realtor"
+    BY_REALTOR = "author_id"
+    BY_ID = "uuid"
     BY_AREA = "area"
     BY_LOCATION = "location"
     BY_PRICE = "price"

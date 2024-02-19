@@ -13,26 +13,14 @@ class Location(BaseModel):
 class Offer(BaseModel):
     uuid: UUID
     author_id: int
+    type: OfferType
+    area: float
     name: str
     location: Location
     price: PositiveInt
     floor: NonNegativeInt
     photos: list[UUID]  # UUID of photos
-
-
-class OfferHouse(Offer):
-    type: OfferType = OfferType.HOUSE
-
-
-class OfferFlat(Offer):
-    type: OfferType = OfferType.FLAT
-    rooms_num: PositiveInt
-    has_balcony: bool
-
-
-class OfferOffice(Offer):
-    type: OfferType = OfferType.OFFICE
-    has_secure: bool
+    kwargs: Optional[dict]
 
 
 class Auth(BaseModel):
