@@ -7,5 +7,7 @@ router = APIRouter(
 
 
 @router.get("/")
-async def root_account():
-    return {"root": 5}
+async def root_account() -> dict[str, str]:
+    return {
+        "account": "there will be information about possible settings for user (maybe 😁)"
+    }
