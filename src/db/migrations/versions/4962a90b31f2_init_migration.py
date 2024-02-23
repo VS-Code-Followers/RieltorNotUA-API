@@ -1,8 +1,8 @@
 """init migration
 
-Revision ID: 5d3851bc0a4b
+Revision ID: 4962a90b31f2
 Revises: 
-Create Date: 2024-02-16 23:37:56.668962
+Create Date: 2024-02-23 21:25:59.513270
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "5d3851bc0a4b"
+revision: str = "4962a90b31f2"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -23,11 +23,16 @@ def upgrade() -> None:
     op.create_table(
         "offers",
         sa.Column("uuid", sa.UUID(), nullable=False),
+        sa.Column("author_id", sa.BigInteger(), nullable=False),
+        sa.Column("offer_type", sa.VARCHAR(length=20), nullable=False),
+        sa.Column("area", sa.Float(), nullable=False),
         sa.Column("name", sa.VARCHAR(length=100), nullable=False),
+        sa.Column("description", sa.VARCHAR(length=500), nullable=False),
         sa.Column("location", postgresql.JSON(astext_type=sa.Text()), nullable=False),
         sa.Column("price", sa.Integer(), nullable=False),
         sa.Column("floor", sa.Integer(), nullable=False),
         sa.Column("photos", postgresql.ARRAY(sa.UUID()), nullable=False),
+        sa.Column("tags", postgresql.JSON(astext_type=sa.Text()), nullable=True),
         sa.PrimaryKeyConstraint("uuid", "photos"),
     )
     op.create_table(
