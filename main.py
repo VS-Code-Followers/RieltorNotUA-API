@@ -2,12 +2,12 @@ from fastapi import FastAPI
 from uvicorn import run
 from fastapi.responses import RedirectResponse
 import starlette.status as status
-from src.api.routers import search, account
+from src.api.routers import search, account, query
 from src.config import get_config
 
 config = get_config()
 app = FastAPI()
-for router in [search.router, account.router]:
+for router in [search.router, account.router, query.router]:
     app.include_router(router)
 
 
