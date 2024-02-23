@@ -43,7 +43,7 @@ python -m pip install packaging
 
 **4) Rename example.env to .env, or set ENV_FILE to example.env. You can do it with this command:**
 
-1) For **Linix**:
+1) For **Linux**:
    
 ```bash
 export ENV_FILE="example.env"
