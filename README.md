@@ -43,10 +43,17 @@ python -m pip install packaging
 
 **4) Rename example.env to .env, or set ENV_FILE to example.env. You can do it with this command:**
 
+1) For **Linix**:
+   
 ```bash
-export ENV_FILE=example.env
+export ENV_FILE="example.env"
 ```
 
+2) For **Windows**:
+
+```powershell
+$Env:ENV_FILE="example.env"
+```
 
 **5) Connect to DB at localhost with docker:**
 
