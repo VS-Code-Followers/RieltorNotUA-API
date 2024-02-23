@@ -6,15 +6,15 @@
 git clone https://github.com/CBoYXD/RietorNotUA-API.git
 ```
 
-**2. Create venv (if not created yet)**
+**2. Create ```venv``` (if not created yet)**
 
-**1) Check, if you install virtualenv package. If not, install it with:**
+1) **Check, if you install ```virtualenv``` package. If not, install it with:**
 
 ```bash
 python -m pip install virtualenv
 ```
 
-**2) Create .venv folder**
+2) **Create .venv folder**
 
 ```bash
 python -m venv .venv
