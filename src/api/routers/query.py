@@ -21,7 +21,7 @@ async def root_query() -> dict[str, str]:
 
 
 @router.post("/create")
-async def create_model(data: Offer):
+async def create_model(data: Offer) -> dict[str, str | int]:
     engine = get_engine()
     async with engine.connect() as session:
         repo = OfferRepo(session)
@@ -31,7 +31,9 @@ async def create_model(data: Offer):
 
 
 @router.delete("/delete")
-async def delete_model(uuid: Optional[UUID] = None, author_id: Optional[int] = None):
+async def delete_model(
+    uuid: Optional[UUID] = None, author_id: Optional[int] = None
+) -> dict[str, str | int]:
     engine = get_engine()
     msg = {"msg": "Successfully deleted model", "status_code": 201}
     async with engine.connect() as session:
@@ -47,7 +49,7 @@ async def delete_model(uuid: Optional[UUID] = None, author_id: Optional[int] = N
 
 
 @router.delete("/delete/all")
-async def delete_all_models():
+async def delete_all_models() -> dict[str, str | int]:
     engine = get_engine()
     async with engine.connect() as session:
         repo = OfferRepo(session)

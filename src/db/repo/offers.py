@@ -22,19 +22,19 @@ class OfferRepo:
             "tags",
         )
 
-    async def add_offer(self, offer: Offer) -> str:
+    async def add_offer(self, offer: Offer) -> None:
         await self.session.execute(insert(Offers).values(**offer.model_dump()))
         await self.session.commit()
 
-    async def delete_offers_by_uuid(self, uuid: UUID):
+    async def delete_offers_by_uuid(self, uuid: UUID) -> None:
         await self.session.execute(delete(Offers).where(Offers.uuid == uuid))
         await self.session.commit()
 
-    async def delete_offers_by_author(self, author_id: int):
+    async def delete_offers_by_author(self, author_id: int) -> None:
         await self.session.execute(delete(Offers).where(Offers.author_id == author_id))
         await self.session.commit()
 
-    async def cleanup_offers(self):
+    async def cleanup_offers(self) -> None:
         await self.session.execute(delete(Offers))
         await self.session.commit()
 
@@ -44,7 +44,7 @@ class OfferRepo:
             Offer(**dict(zip(self.offer_params, i.tuple()))) for i in result.fetchall()
         ]
 
-    async def get_offer_by_id(self, id: UUID):
+    async def get_offer_by_id(self, id: UUID) -> list[Offer]:
         result = await self.session.execute(select(Offers).where(Offers.uuid == id))
         return [
             Offer(**dict(zip(self.offer_params, i.tuple()))) for i in result.fetchall()
@@ -53,7 +53,7 @@ class OfferRepo:
     async def get_filters_offers(
         self,
         value: SearchValidate,
-    ):
+    ) -> list[Offer]:
         exp = []
         if (
             (value.offer_type is None)
