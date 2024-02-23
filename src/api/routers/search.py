@@ -1,8 +1,6 @@
 from fastapi import APIRouter
-from typing import Optional
-from uuid import UUID
-from ..models import Location, Offer
-from ..models import OfferType, ValueSinceToValidate, SearchValidate
+from ..models import Offer
+from ..models import SearchValidate
 from ...db.repo.offers import OfferRepo
 from ...config import get_engine
 
