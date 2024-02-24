@@ -12,7 +12,7 @@ class Base(DeclarativeBase):
 
 
 class Offers(Base):
-    __tablename__ = "offers"
+    __tablename__ = 'offers'
     uuid: Mapped[ID] = mapped_column(UUID, primary_key=True)
     author_id: Mapped[int] = mapped_column(BigInteger)
     offer_type: Mapped[str] = mapped_column(VARCHAR(20))
@@ -27,7 +27,7 @@ class Offers(Base):
 
 
 class Users(Base):
-    __tablename__ = "users"
+    __tablename__ = 'users'
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     location: Mapped[dict] = mapped_column(JSON)
     offers: Mapped[list[ID]] = mapped_column(ARRAY(UUID), primary_key=True)

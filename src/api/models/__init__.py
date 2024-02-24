@@ -6,9 +6,9 @@ from pydantic_extra_types.coordinate import Coordinate
 
 
 class OfferType(Enum):
-    HOUSE = "house"
-    FLAT = "flat"
-    OFFICE = "office"
+    HOUSE = 'house'
+    FLAT = 'flat'
+    OFFICE = 'office'
 
 
 class Location(BaseModel):

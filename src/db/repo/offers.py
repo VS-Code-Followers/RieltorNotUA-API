@@ -9,17 +9,17 @@ class OfferRepo:
     def __init__(self, session: AsyncSession | AsyncConnection):
         self.session = session
         self.offer_params = (
-            "uuid",
-            "author_id",
-            "offer_type",
-            "area",
-            "name",
-            "description",
-            "location",
-            "price",
-            "floor",
-            "photos",
-            "tags",
+            'uuid',
+            'author_id',
+            'offer_type',
+            'area',
+            'name',
+            'description',
+            'location',
+            'price',
+            'floor',
+            'photos',
+            'tags',
         )
 
     async def add_offer(self, offer: Offer) -> None:

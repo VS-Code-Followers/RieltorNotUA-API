@@ -23,10 +23,10 @@ async def gen_offers(
                     author_id=random.randint(100000000, 999999999),
                     offer_type=OfferType.HOUSE.value,
                     area=round(random.uniform(10.0, 50.0), 4),
-                    name=f"flat_gen_{j}",
-                    description=f"This is test generate data. Test number {j}",
+                    name=f'flat_gen_{j}',
+                    description=f'This is test generate data. Test number {j}',
                     location=Location(
-                        text=f"Coords of Offer is ({lat}, {lon})",
+                        text=f'Coords of Offer is ({lat}, {lon})',
                         coordinate=(lat, lon),
                     ),
                     price=random.randint(1000000, 99999999),
@@ -44,18 +44,18 @@ async def gen_offers(
                     author_id=random.randint(100000000, 999999999),
                     offer_type=OfferType.FLAT.value,
                     area=round(random.uniform(10.0, 50.0), 4),
-                    name=f"flat_gen_{i}",
-                    description=f"This is test generate data. Test number {i}",
+                    name=f'flat_gen_{i}',
+                    description=f'This is test generate data. Test number {i}',
                     location=Location(
-                        text=f"Coords of Offer is ({lat}, {lon})",
+                        text=f'Coords of Offer is ({lat}, {lon})',
                         coordinate=(lat, lon),
                     ),
                     price=random.randint(1000000, 99999999),
                     floor=random.randint(1, 24),
                     photos=[uuid4() for _ in range(photo_nums)],
                     tags={
-                        "rooms_num": random.randint(1, 5),
-                        "has_balcony": bool(random.randint(0, 1)),
+                        'rooms_num': random.randint(1, 5),
+                        'has_balcony': bool(random.randint(0, 1)),
                     },
                 )
             )
@@ -69,16 +69,16 @@ async def gen_offers(
                     author_id=random.randint(100000000, 999999999),
                     offer_type=OfferType.OFFICE.value,
                     area=round(random.uniform(10.0, 50.0), 4),
-                    name=f"flat_gen_{n}",
-                    description=f"This is test generate data. Test number {n}",
+                    name=f'flat_gen_{n}',
+                    description=f'This is test generate data. Test number {n}',
                     location=Location(
-                        text=f"Coords of Offer is ({lat}, {lon})",
+                        text=f'Coords of Offer is ({lat}, {lon})',
                         coordinate=(lat, lon),
                     ),
                     price=random.randint(1000000, 99999999),
                     floor=random.randint(1, 24),
                     photos=[uuid4() for _ in range(photo_nums)],
-                    tags={"has_secure": bool(random.randint(0, 1))},
+                    tags={'has_secure': bool(random.randint(0, 1))},
                 )
             )
     await engine.dispose()

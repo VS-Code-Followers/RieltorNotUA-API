@@ -11,15 +11,15 @@ for router in [search.router, account.router, query.router]:
     app.include_router(router)
 
 
-@app.get("/")
+@app.get('/')
 async def root():
-    return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(url='/docs', status_code=status.HTTP_302_FOUND)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         run(
-            "main:app",
+            'main:app',
             host=config.fastapi.host,
             port=config.fastapi.port,
             reload=True,

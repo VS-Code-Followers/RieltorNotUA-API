@@ -22,7 +22,7 @@ class DataBase(BaseModel):
 class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
-    model_config = SettingsConfigDict(env_nested_delimiter="_")
+    model_config = SettingsConfigDict(env_nested_delimiter='_')
 
 
 @lru_cache
