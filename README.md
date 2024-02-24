@@ -10,7 +10,9 @@ git clone https://github.com/CBoYXD/RietorNotUA-API.git
 
 1) [Install Docker](https://docs.docker.com/engine/install/) (if not already installed)
 
-2) Run project
+2) Start Docker
+
+3) Run project
    
 ```bash
 docker compose up
