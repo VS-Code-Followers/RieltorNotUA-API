@@ -18,13 +18,13 @@ class Location(BaseModel):
 
 class Offer(BaseModel):
     uuid: UUID
-    author_id: int
+    author_id: PositiveInt
     offer_type: str
     area: float
     name: str
     description: str
     location: Location
-    price: PositiveInt
+    price: NonNegativeInt
     floor: NonNegativeInt
     photos: list[UUID]  # UUID of photos
     tags: Optional[dict]
@@ -50,15 +50,15 @@ class Seller(BaseModel):
 
 
 class ValueSinceToValidate(BaseModel):
-    value: Optional[int] = None
-    since: Optional[int] = None
-    to: Optional[int] = None
+    value: Optional[NonNegativeInt] = None
+    since: Optional[NonNegativeInt] = None
+    to: Optional[NonNegativeInt] = None
 
 
 class SearchValidate(BaseModel):
     offer_type: Optional[OfferType] = None
     uuid: Optional[UUID] = None
-    author_id: Optional[int] = None
+    author_id: Optional[PositiveInt] = None
     price: Optional[ValueSinceToValidate] = None
     area: Optional[ValueSinceToValidate] = None
     # location: Optional[Location]
