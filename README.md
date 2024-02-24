@@ -20,7 +20,7 @@ docker compose up
 
 **3. Link to API**
 
-You need to use [this link](http://localhost:8000), for access to API.
+You need to use [this link](http://127.0.0.1:8000), for access to API.
 
 
 **Also you can use ```gen_data.py``` for generating data in DataBase**
