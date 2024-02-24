@@ -1,0 +1,11 @@
+**.venv/
+**.git/
+**.ruff_cache/
+**.mypy_cache/
+**__pycache__/
+.env
+.gitignore
+poetry.lock
+pyproject.toml
+README.md
+TODO.md

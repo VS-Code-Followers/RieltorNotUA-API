@@ -1,4 +1,3 @@
-import asyncio
 import random
 from uuid import uuid4
 from src.config import get_engine
@@ -83,11 +82,3 @@ async def gen_offers(
                 )
             )
     await engine.dispose()
-
-
-async def main():
-    await gen_offers()
-    print("Ok")
-
-
-asyncio.run(main())
