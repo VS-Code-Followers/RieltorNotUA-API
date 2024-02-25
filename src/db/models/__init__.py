@@ -20,7 +20,7 @@ class Offers(Base):
     name: Mapped[str] = mapped_column(VARCHAR(100))
     description: Mapped[str] = mapped_column(VARCHAR(500))
     location: Mapped[dict] = mapped_column(JSON)
-    price: Mapped[int] = mapped_column(Integer)
+    price: Mapped[int] = mapped_column(BigInteger)
     floor: Mapped[int] = mapped_column(Integer)
     photos: Mapped[list[ID]] = mapped_column(ARRAY(UUID), primary_key=True)
     tags: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
