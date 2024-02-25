@@ -1,4 +1,5 @@
 import random
+from asyncio import run
 from uuid import uuid4
 from src.config import get_engine
 from src.api.models import Offer, Location, OfferType
@@ -82,3 +83,5 @@ async def gen_offers(
                 )
             )
     await engine.dispose()
+
+run(gen_offers())
