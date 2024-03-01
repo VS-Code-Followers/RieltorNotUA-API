@@ -1,7 +1,7 @@
 from typing import Optional
 from enum import Enum
 from uuid import UUID
-from pydantic import BaseModel, PositiveInt, NonNegativeInt, EmailStr
+from pydantic import BaseModel, NonNegativeInt, NonNegativeFloat
 from pydantic_extra_types.coordinate import Coordinate
 
 
@@ -24,7 +24,7 @@ class Author(BaseModel):
 class ShortOffer(BaseModel):
     uuid: UUID
     offer_type: str
-    price: int
+    price: NonNegativeInt
     name: str
     location: Location
     photos: list[UUID]  # UUID of photos
@@ -32,30 +32,10 @@ class ShortOffer(BaseModel):
 
 class Offer(ShortOffer):
     author: Author
-    area: float
+    area: NonNegativeFloat
     description: str
-    price: NonNegativeInt
     floor: NonNegativeInt
     tags: Optional[dict]
-
-
-class Auth(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class Realtor(BaseModel):
-    id: PositiveInt
-    # auth: Auth
-    location: Location
-    offers: list[Optional[Offer]]
-    active_offers: NonNegativeInt
-
-
-class Seller(BaseModel):
-    id: PositiveInt
-    # auth: Auth
-    location: Optional[Location]
 
 
 class ValueSinceToValidate(BaseModel):
