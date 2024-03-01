@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
 from sqlalchemy import insert, select, delete
 from uuid import UUID
 from ..models import Offers
-from ...api.models import Offer, SearchValidate
+from ...api.models import Offer, SearchValidate, ShortOffer
 
 
 class OfferRepo:
@@ -20,6 +20,14 @@ class OfferRepo:
             'floor',
             'photos',
             'tags',
+        )
+        self.short_offer_params = (
+            'uuid',
+            'offer_type',
+            'price',
+            'name',
+            'location',
+            'photos',
         )
 
     async def add_offer(self, offer: Offer) -> None:
@@ -44,6 +52,22 @@ class OfferRepo:
         result = await self.session.execute(select(Offers))
         return [
             Offer(**dict(zip(self.offer_params, i._tuple()))) for i in result.fetchall()
+        ]
+
+    async def get_all_short_offfers(self) -> list[ShortOffer]:
+        result = await self.session.execute(
+            select(
+                Offers.uuid,
+                Offers.offer_type,
+                Offers.price,
+                Offers.name,
+                Offers.location,
+                Offers.photos,
+            )
+        )
+        return [
+            ShortOffer(**dict(zip(self.short_offer_params, i._tuple())))
+            for i in result.fetchall()
         ]
 
     async def get_filters_offers(
