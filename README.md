@@ -60,7 +60,7 @@ For **Linux**:
 export ENV_FILE=".env"
 ```
 
-### 1) Run tests
+### **4. Run tests**
 
 ```bash
 python -m pytest .
