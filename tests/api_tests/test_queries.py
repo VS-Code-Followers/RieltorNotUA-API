@@ -31,7 +31,10 @@ class TestQueryAPI:
             lon = round(random.uniform(10.0, 90.0), 5)
             model = dict(
                 uuid=str(uuid4()),
-                author_id=random.randint(100000000, 999999999),
+                author=dict(
+                    name=f'test_name{j}',
+                    account_id=random.randint(100000000, 999999999),
+                ),
                 offer_type=offer_type.value,
                 area=round(random.uniform(10.0, 50.0), 4),
                 name=f'flat_gen_{j}',
