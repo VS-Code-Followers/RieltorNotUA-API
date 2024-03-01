@@ -2,7 +2,7 @@ import random
 from asyncio import run
 from uuid import uuid4
 from src.config import get_engine
-from src.api.models import Offer, Location, OfferType
+from src.api.models import Offer, Location, OfferType, Author
 from src.db.repo.offers import OfferRepo
 
 
@@ -21,7 +21,10 @@ async def gen_offers(
             await repo.add_offer(
                 Offer(
                     uuid=uuid4(),
-                    author_id=random.randint(100000000, 999999999),
+                    author=Author(
+                        name=f'test_name{j}',
+                        account_id=random.randint(100000000, 999999999),
+                    ),
                     offer_type=OfferType.HOUSE.value,
                     area=round(random.uniform(10.0, 50.0), 4),
                     name=f'flat_gen_{j}',
@@ -42,7 +45,10 @@ async def gen_offers(
             await repo.add_offer(
                 Offer(
                     uuid=uuid4(),
-                    author_id=random.randint(100000000, 999999999),
+                    author=Author(
+                        name=f'test_name{i}',
+                        account_id=random.randint(100000000, 999999999),
+                    ),
                     offer_type=OfferType.FLAT.value,
                     area=round(random.uniform(10.0, 50.0), 4),
                     name=f'flat_gen_{i}',
@@ -67,7 +73,10 @@ async def gen_offers(
             await repo.add_offer(
                 Offer(
                     uuid=uuid4(),
-                    author_id=random.randint(100000000, 999999999),
+                    author=Author(
+                        name=f'test_name{n}',
+                        account_id=random.randint(100000000, 999999999),
+                    ),
                     offer_type=OfferType.OFFICE.value,
                     area=round(random.uniform(10.0, 50.0), 4),
                     name=f'flat_gen_{n}',

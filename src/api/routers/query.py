@@ -41,7 +41,7 @@ async def delete_model(
         if uuid is not None:
             await repo.delete_offers_by_uuid(uuid)
         elif author_id is not None:
-            await repo.delete_offers_by_author(author_id)
+            await repo.delete_offers_by_author_id(author_id)
         else:
             msg = {'msg': 'All params is None!', 'status_code': 400}
     await engine.dispose()

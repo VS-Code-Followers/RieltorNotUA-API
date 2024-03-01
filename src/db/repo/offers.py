@@ -10,7 +10,7 @@ class OfferRepo:
         self.session = session
         self.offer_params = (
             'uuid',
-            'author_id',
+            'author',
             'offer_type',
             'area',
             'name',
@@ -30,8 +30,10 @@ class OfferRepo:
         await self.session.execute(delete(Offers).where(Offers.uuid == uuid))
         await self.session.commit()
 
-    async def delete_offers_by_author(self, author_id: int) -> None:
-        await self.session.execute(delete(Offers).where(Offers.author_id == author_id))
+    async def delete_offers_by_author_id(self, author_id: int) -> None:
+        await self.session.execute(
+            delete(Offers).where(Offers.author['account_id'].astext == str(author_id))
+        )
         await self.session.commit()
 
     async def cleanup_offers(self) -> None:
@@ -41,13 +43,7 @@ class OfferRepo:
     async def get_all_offers(self) -> list[Offer]:
         result = await self.session.execute(select(Offers))
         return [
-            Offer(**dict(zip(self.offer_params, i.tuple()))) for i in result.fetchall()
-        ]
-
-    async def get_offer_by_id(self, id: UUID) -> list[Offer]:
-        result = await self.session.execute(select(Offers).where(Offers.uuid == id))
-        return [
-            Offer(**dict(zip(self.offer_params, i.tuple()))) for i in result.fetchall()
+            Offer(**dict(zip(self.offer_params, i._tuple()))) for i in result.fetchall()
         ]
 
     async def get_filters_offers(
@@ -59,6 +55,7 @@ class OfferRepo:
             (value.offer_type is None)
             and (value.uuid is None)
             and (value.author_id is None)
+            and (value.author_name is None)
             and (value.price is None)
             and (value.area is None)
         ):
@@ -68,7 +65,9 @@ class OfferRepo:
         if value.offer_type is not None:
             exp.append(Offers.offer_type == value.offer_type.value)
         if value.author_id is not None:
-            exp.append(Offers.author_id == value.author_id)
+            exp.append(Offers.author['account_id'].astext == str(value.author_id))
+        if value.author_name is not None:
+            exp.append(Offers.author['name'].astext == value.author_name)
         if value.price is not None:
             if value.price.value is None:
                 if (value.price.since is not None) and (value.price.to is not None):
@@ -91,5 +90,5 @@ class OfferRepo:
                 exp.append(Offers.price == value.price.value)
         result = await self.session.execute(select(Offers).where(*exp))
         return [
-            Offer(**dict(zip(self.offer_params, i.tuple()))) for i in result.fetchall()
+            Offer(**dict(zip(self.offer_params, i._tuple()))) for i in result.fetchall()
         ]

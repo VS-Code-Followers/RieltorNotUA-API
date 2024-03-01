@@ -16,17 +16,26 @@ class Location(BaseModel):
     coordinate: Coordinate
 
 
-class Offer(BaseModel):
-    uuid: UUID
-    author_id: PositiveInt
-    offer_type: str
-    area: float
+class Author(BaseModel):
+    account_id: int
     name: str
-    description: str
+
+
+class ShortOffer(BaseModel):
+    uuid: UUID
+    offer_type: str
+    price: int
+    name: str
     location: Location
+    photos: list[UUID]  # UUID of photos
+
+
+class Offer(ShortOffer):
+    author: Author
+    area: float
+    description: str
     price: NonNegativeInt
     floor: NonNegativeInt
-    photos: list[UUID]  # UUID of photos
     tags: Optional[dict]
 
 
@@ -58,7 +67,8 @@ class ValueSinceToValidate(BaseModel):
 class SearchValidate(BaseModel):
     offer_type: Optional[OfferType] = None
     uuid: Optional[UUID] = None
-    author_id: Optional[PositiveInt] = None
+    author_id: Optional[int] = None
+    author_name: Optional[str] = None
     price: Optional[ValueSinceToValidate] = None
     area: Optional[ValueSinceToValidate] = None
     # location: Optional[Location]
