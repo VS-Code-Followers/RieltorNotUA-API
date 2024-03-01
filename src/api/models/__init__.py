@@ -21,21 +21,25 @@ class Author(BaseModel):
     name: str
 
 
-class ShortOffer(BaseModel):
+class BaseOffer(BaseModel):
     uuid: UUID
     offer_type: str
     price: NonNegativeInt
     name: str
     location: Location
-    photos: list[UUID]  # UUID of photos
 
 
-class Offer(ShortOffer):
+class ShortOffer(BaseOffer):
+    photo: UUID
+
+
+class Offer(BaseOffer):
     author: Author
     area: NonNegativeFloat
     description: str
     floor: NonNegativeInt
     tags: Optional[dict]
+    photos: list[UUID]  # UUID of photos
 
 
 class ValueSinceToValidate(BaseModel):
