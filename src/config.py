@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+from os import getenv
 
 
 class FastAPI(BaseModel):
@@ -22,7 +23,9 @@ class DataBase(BaseModel):
 class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
-    model_config = SettingsConfigDict(env_nested_delimiter='_')
+    model_config = SettingsConfigDict(
+        env_nested_delimiter='_', env_file=getenv('ENV_FILE', None)
+    )
 
 
 @lru_cache

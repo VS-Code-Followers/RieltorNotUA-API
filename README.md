@@ -24,3 +24,44 @@ You need to use [this link](http://127.0.0.1:8000), for access to API.
 
 
 **Also you can use ```gen_data.py``` for generating data in DataBase**
+
+
+**For run tests you needs:**
+
+**1. Create venv**
+
+```bash
+python -m venv .venv
+```
+
+**2. Install Dependencies**
+
+```bash
+python -m poetry install --with test --no-root
+```
+
+**3. Set environment variables:**
+1) Rename example.env file to .env
+2) Put all need data in this file
+3) Set path to file:
+
+For **Windows**:
+
+```powershell
+$Env:ENV_FILE=".env"
+```
+   
+For **Linux**:
+
+```bash
+export ENV_FILE=".env"
+```
+
+4) Run tests
+
+```bash
+python -m pytest .
+```
+
+
+**Good luck! 😁**
