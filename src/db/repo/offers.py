@@ -115,7 +115,12 @@ class OfferRepo:
         if value.price is not None:
             if value.price.value is None:
                 if (value.price.since is not None) and (value.price.to is not None):
-                    exp.append(value.price.to >= Offers.price >= value.price.since)
+                    exp.extend(
+                        [
+                            value.price.to >= Offers.price,
+                            Offers.price >= value.price.since,
+                        ]
+                    )
                 elif value.price.since is not None:
                     exp.append(Offers.price >= value.price.since)
                 elif value.price.to is not None:
@@ -125,7 +130,9 @@ class OfferRepo:
         if value.area is not None:
             if value.area.value is None:
                 if (value.area.since is not None) and (value.area.to is not None):
-                    exp.append(value.area.to >= Offers.area >= value.area.since)
+                    exp.extend(
+                        [value.area.to >= Offers.area, Offers.area >= value.area.since]
+                    )
                 elif value.area.since is not None:
                     exp.append(Offers.area >= value.area.since)
                 elif value.area.to is not None:
