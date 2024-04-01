@@ -1,7 +1,9 @@
-from typing import Optional
+from __future__ import annotations
+from typing import Any, Optional
 from enum import Enum
 from uuid import UUID
-from pydantic import BaseModel, NonNegativeInt, NonNegativeFloat
+from pydantic_core import PydanticCustomError
+from pydantic import model_validator, BaseModel, NonNegativeInt, NonNegativeFloat
 from pydantic_extra_types.coordinate import Coordinate
 
 
@@ -56,3 +58,13 @@ class SearchValidate(BaseModel):
     price: Optional[ValueSinceToValidate] = None
     area: Optional[ValueSinceToValidate] = None
     # location: Optional[Location]
+
+    @model_validator(mode='before')
+    @classmethod
+    def _validate(cls, value: Any) -> SearchValidate:
+        if not value:
+            raise PydanticCustomError(
+                'search_validate_error',
+                'All values cannot be None! Use /offers/all to get all offers',
+            )
+        return value

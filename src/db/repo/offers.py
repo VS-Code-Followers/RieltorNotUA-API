@@ -50,12 +50,6 @@ class OfferRepo:
         await self.session.execute(delete(Offers))
         await self.session.commit()
 
-    async def get_offers_by_uuid(self, uuid) -> list[Offer]:
-        result = await self.session.execute(select(Offers).where(Offers.uuid == uuid))
-        return [
-            Offer(**dict(zip(self.offer_params, i._tuple()))) for i in result.fetchall()
-        ]
-
     async def get_all_offers(self) -> list[Offer]:
         result = await self.session.execute(select(Offers))
         return [
@@ -93,17 +87,8 @@ class OfferRepo:
         value: SearchValidate,
     ) -> list[Offer]:
         exp = []
-        if (
-            (value.offer_type is None)
-            and (value.uuid is None)
-            and (value.author_id is None)
-            and (value.author_name is None)
-            and (value.price is None)
-            and (value.area is None)
-        ):
-            return await self.get_all_offers()
         if value.uuid is not None:
-            return await self.get_offers_by_uuid(value.uuid)
+            exp.append(Offers.uuid == value.uuid)
         if value.offer_type is not None:
             exp.append(Offers.offer_type == value.offer_type.value)
         if value.author_id is not None:
