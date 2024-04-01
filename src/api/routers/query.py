@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from ...db.repo.offers import OfferRepo
-from ..models import Offer
+from ..models.offers import Offer
 from ...config import get_engine
 from uuid import UUID
 from typing import Optional

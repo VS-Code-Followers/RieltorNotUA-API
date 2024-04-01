@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..models import Offer, SearchValidate, ShortOffer
+from ..models.offers import Offer, SearchValidate, ShortOffer
 from ...db.repo.offers import OfferRepo
 from ...config import get_engine
 

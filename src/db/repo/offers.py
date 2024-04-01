@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
 from sqlalchemy import insert, select, delete, cast, BIGINT
 from uuid import UUID
 from ..models import Offers
-from ...api.models import Offer, SearchValidate, ShortOffer
+from ...api.models.offers import Offer, SearchValidate, ShortOffer
 
 
 class OfferRepo:
