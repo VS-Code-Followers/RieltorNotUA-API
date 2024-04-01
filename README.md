@@ -16,13 +16,31 @@ git clone https://github.com/CBoYXD/RietorNotUA-API.git
 docker compose up
 ```
 
+#### Also you need to create database and tables. You have 3 variants:
+
+1) Use alembic
+   
+```bash
+./scripts/alembic/run_migration.sh
+```
+
+2) Use postgres dumps **(if you create it before)**
+   
+```bash
+./scripts/postgres/restore.sh
+```
+
+After that write name of this dump
+
+3) Any other script you have
+
 ### 3. Link to API
 
 You need to use [this link](http://127.0.0.1:8000), for access to API.
 
-## Also you can use ```gen_data.py``` for generating data in DataBase
-
 ## For run tests you needs:
+
+#### Note*: You need to run docker container before you runs the tests
 
 ### 1. Create venv
 
@@ -59,5 +77,11 @@ export ENV_FILE=".env"
 ```bash
 python -m pytest .
 ```
+
+## Also you can use ```scripts/gen/create_all.sh``` for generating data in DataBase 
+
+#### Note*: Before generating data you need create .venv and install all necessary dependencies
+
+## Note!: All scripts must run from root directory of project!
 
 ## Good luck! 😁
