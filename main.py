@@ -5,12 +5,12 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from pydantic import ValidationError
 import starlette.status as status
-from src.api.routers import search, account, query
+from src.api.routers import offers, account, query
 from src.config import get_config
 
 config = get_config()
 app = FastAPI()
-for router in [search.router, account.router, query.router]:
+for router in [offers.router, account.router, query.router]:
     app.include_router(router)
 
 
