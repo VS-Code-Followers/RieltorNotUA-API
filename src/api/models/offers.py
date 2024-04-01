@@ -4,20 +4,14 @@ from enum import Enum
 from uuid import UUID
 from pydantic_core import PydanticCustomError
 from pydantic import model_validator, BaseModel, NonNegativeInt, NonNegativeFloat
-from pydantic_extra_types.coordinate import Coordinate
 from .users import Author
+from .base import Location
 
 
 class OfferType(Enum):
     HOUSE = 'house'
     FLAT = 'flat'
     OFFICE = 'office'
-
-
-class Location(BaseModel):
-    text: str
-    coordinate: Coordinate
-
 
 class BaseOffer(BaseModel):
     uuid: UUID

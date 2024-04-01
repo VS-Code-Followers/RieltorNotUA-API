@@ -7,9 +7,16 @@ from pydantic import ValidationError
 import starlette.status as status
 from src.api.routers import offers, account, query
 from src.config import get_config
+import logging
 
 config = get_config()
 app = FastAPI()
+log_level = logging.INFO
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
+)
+
 for router in [offers.router, account.router, query.router]:
     app.include_router(router)
 
