@@ -167,3 +167,5 @@ poetry.lock
 
 # Postgres dumps
 **dumps
+#VSCode
+.vscode/
