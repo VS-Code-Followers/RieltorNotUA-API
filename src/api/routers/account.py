@@ -1,14 +1,26 @@
-from fastapi import logger,  APIRouter, Depends, HTTPException, status
+from fastapi import logger, APIRouter, Depends, HTTPException, status
+import requests
 from fastapi.security import OAuth2PasswordRequestForm
-from ..auth import oauth2_scheme, Token, authenticate_user, create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..auth import (
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GOOGLE_REDIRECT_URI,
+    oauth2_scheme,
+    Token,
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
 from ..auth.models import OAuth2Form
 from ..models.users import Author
 from typing import Annotated
 from datetime import timedelta
+from jose import jwt
 
 router = APIRouter(
-    prefix='/account',
-    tags=['account'],
+    prefix="/account",
+    tags=["account"],
 )
 
 """
@@ -35,19 +47,50 @@ fake_users_db = {
         "username": "johndoe",
         "full_name": "John Doe",
         "email": "johndoe@example.com",
-        "password": '$2b$12$DX/CgXx3.vwKSENi0mUZHeK.l94QqIPs9kWjaSu2CdfEmu2TfdrD2',
+        "password": "$2b$12$DX/CgXx3.vwKSENi0mUZHeK.l94QqIPs9kWjaSu2CdfEmu2TfdrD2",
         "disabled": False,
     }
 }
 
-@router.get('/')
+
+@router.get("/")
 async def root_account() -> dict[str, str]:
     return {
-        'account': 'there will be information about possible settings for user (maybe 😁)'
+        "account": "there will be information about possible settings for user (maybe 😁)"
     }
-    
-    
-    
+
+
+@router.get("/login/google")
+async def login_google():
+    return {
+        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
+    }
+
+
+@router.get("/auth/google")
+async def auth_google(code: str):
+    token_url = "https://accounts.google.com/o/oauth2/token"
+    data = {
+        "code": code,
+        "client_id": GOOGLE_CLIENT_ID,
+        "client_secret": GOOGLE_CLIENT_SECRET,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    }
+    response = requests.post(token_url, data=data)
+    access_token = response.json().get("access_token")
+    user_info = requests.get(
+        "https://www.googleapis.com/oauth2/v1/userinfo",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    return user_info.json()
+
+
+@router.post("/token/google")
+async def get_token(token: str = Depends(oauth2_scheme)):
+    return jwt.decode(token, GOOGLE_CLIENT_SECRET, algorithms=["HS256"])
+
+
 @router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],

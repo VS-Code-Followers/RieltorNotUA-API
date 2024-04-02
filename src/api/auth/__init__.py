@@ -1,5 +1,9 @@
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, OAuth2PasswordRequestFormStrict
-from fastapi import logger,HTTPException
+from fastapi.security import (
+    OAuth2PasswordRequestForm,
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestFormStrict,
+)
+from fastapi import logger, HTTPException
 from ..models.users import AuthorInDB
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -14,6 +18,7 @@ SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="account/token")
 
 fake_users_db = {
@@ -21,11 +26,10 @@ fake_users_db = {
         "username": "johndoe",
         "full_name": "John Doe",
         "email": "johndoe@example.com",
-        "password": '$2b$12$DX/CgXx3.vwKSENi0mUZHeK.l94QqIPs9kWjaSu2CdfEmu2TfdrD2',
+        "password": "$2b$12$DX/CgXx3.vwKSENi0mUZHeK.l94QqIPs9kWjaSu2CdfEmu2TfdrD2",
         "disabled": False,
     }
 }
-
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -42,7 +46,6 @@ def get_password_hash(password):
 def get_user(db, email) -> AuthorInDB:
     if email in db:
         return AuthorInDB(**db[email])
-    
 
 
 def authenticate_user(fake_db, email: str, password: str) -> AuthorInDB:
@@ -52,6 +55,7 @@ def authenticate_user(fake_db, email: str, password: str) -> AuthorInDB:
     if not verify_password(password, user.password):
         return False
     return user
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -82,4 +86,3 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     if user is None:
         raise credentials_exception
     return user
-
