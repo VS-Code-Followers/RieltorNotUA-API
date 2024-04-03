@@ -30,7 +30,7 @@ class Users(Base):
     __tablename__ = 'users'
     email: Mapped[str] = mapped_column(VARCHAR(50), unique=True)
     password: Mapped[str] = mapped_column(Text, unique=True)
-    full_name: Mapped[str]= mapped_column(VARCHAR(100))
+    full_name: Mapped[str] = mapped_column(VARCHAR(100))
     account_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     location: Mapped[dict] = mapped_column(JSON)
     offers: Mapped[list[ID]] = mapped_column(ARRAY(UUID))
