@@ -1,4 +1,4 @@
-from fastapi import logger, APIRouter, Depends, HTTPException, status
+from fastapi import Security, Security, logger, APIRouter, Depends, HTTPException, status
 from httpx import AsyncClient
 from fastapi.security import OAuth2PasswordRequestForm
 from ..auth import (
@@ -11,11 +11,15 @@ from ..auth import (
 )
 from ..auth.models import OAuth2Form
 from ..models.users import Author
+from ..models.offers import SearchValidate, Offer, OfferWithOutAuthor
+from ..models.base import Response
+from ...db.repo.offers import OfferRepo
 
 from typing import Annotated
 from datetime import timedelta
 from jose import jwt
-from src.config import get_config
+from src.config import get_config, get_engine
+from uuid import UUID
 
 config = get_config()
 auth = config.fastapi.auth
@@ -78,20 +82,69 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={'sub': form_data.username}, expires_delta=access_token_expires
+        data={'sub': form_data.username, "scopes": form_data.scopes}, 
+        expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type='bearer')
 
 
-@router.get('/users/me/', response_model=Author)
+@router.get('/users/me/')
 async def read_users_me(
-    current_user: Annotated[Author, Depends(get_current_user)],
-):
+    current_user: Annotated[Author, Security(get_current_user, scopes=['get_me'])],
+) -> Author:
     return current_user
 
 
-@router.get('/users/me/items/')
-async def read_own_items(
-    current_user: Annotated[Author, Depends(get_current_user)],
-):
-    return [{'item_id': 'Foo', 'owner': current_user.email}]
+@router.get('/users/me/offers/all')
+async def read_own_offers(
+    current_user: Annotated[Author, Security(get_current_user, scopes=['get_my_offers'])],
+) -> list[OfferWithOutAuthor]:
+    async with get_engine().connect() as session:
+        db = OfferRepo(session)
+        return await db.get_offers_by_author(current_user.account_id)
+ 
+    
+@router.post('/users/me/offers/create')
+async def create_new_offer(
+    current_user: Annotated[Author, Security(get_current_user, scopes=['create_offer'])],
+    data: OfferWithOutAuthor
+) -> Response:
+    logger.logger.info(data)
+    offer = Offer(
+        author=current_user,
+        **data.model_dump()
+    )
+    async with get_engine().connect() as session:
+        db = OfferRepo(session)
+        await db.add_offer(offer)
+    return Response(
+        msg='Successfully created offer model',
+        status_code=200
+    )
+    
+@router.delete("/users/me/offers/delete")
+async def delete_my_offer(
+    current_user: Annotated[Author, Security(get_current_user, scopes=['delete_offer'])],
+    uuid: UUID
+) -> Response:
+    async with get_engine().connect() as session:
+        db = OfferRepo(session)
+        await db.delete_offers_by_uuid(uuid)
+    return Response(
+        msg='Successfully deleted offer model',
+        status_code=201
+    )
+    
+
+@router.delete("/users/me/offers/delete/all")
+async def delete_my_offer(
+    current_user: Annotated[Author, Security(get_current_user, scopes=['delete_offer'])],
+) -> Response:
+    async with get_engine().connect() as session:
+        db = OfferRepo(session)
+        await db.delete_offers_by_author_id(current_user.account_id)
+    return Response(
+        msg='Successfully deleted all offer models',
+        status_code=201
+    )
+
