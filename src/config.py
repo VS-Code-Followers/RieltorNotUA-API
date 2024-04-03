@@ -12,6 +12,9 @@ class Auth(BaseModel):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
 
 
 class FastAPI(BaseModel):
@@ -27,7 +30,6 @@ class DataBase(BaseModel):
     host: str
     port: int
     name: str
-
 
 class Config(BaseSettings):
     fastapi: FastAPI

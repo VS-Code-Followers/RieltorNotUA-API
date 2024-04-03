@@ -46,6 +46,7 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
         return await db.get_user_by_email(email)
 
 
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
