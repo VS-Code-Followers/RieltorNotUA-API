@@ -1,6 +1,5 @@
 from fastapi import (
     Security,
-    Security,
     logger,
     APIRouter,
     Depends,
@@ -10,22 +9,19 @@ from fastapi import (
 from httpx import AsyncClient
 from fastapi.security import OAuth2PasswordRequestForm
 from ..auth import (
-    oauth2_scheme,
     Token,
     authenticate_user,
     create_access_token,
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
-from ..auth.models import OAuth2Form
 from ..models.users import Author
-from ..models.offers import SearchValidate, Offer, OfferWithOutAuthor
+from ..models.offers import Offer, OfferWithOutAuthor
 from ..models.base import Response
 from ...db.repo.offers import OfferRepo
 
 from typing import Annotated
 from datetime import timedelta
-from jose import jwt
 from src.config import get_config, get_engine
 from uuid import UUID
 
@@ -143,7 +139,7 @@ async def delete_my_offer(
 
 
 @router.delete('/users/me/offers/delete/all')
-async def delete_my_offer(
+async def delete_all_my_offers(
     current_user: Annotated[
         Author, Security(get_current_user, scopes=['delete_offer'])
     ],

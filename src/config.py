@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
-from os import getenv
 
 
 class Auth(BaseModel):

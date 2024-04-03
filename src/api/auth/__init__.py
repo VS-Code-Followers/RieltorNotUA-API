@@ -1,17 +1,16 @@
 from fastapi.security import (
-    OAuth2PasswordRequestForm,
     OAuth2PasswordBearer,
     SecurityScopes,
 )
-from fastapi import HTTPException, Security
+from fastapi import HTTPException
 from ..models.users import AuthorInDB
 from ...db.repo.users import UserRepo
 from src.config import get_config, get_engine
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from pydantic import ValidationError, BaseModel, EmailStr
-from .models import Token, TokenData
+from pydantic import ValidationError, EmailStr
+from .models import TokenData
 from fastapi import Depends, status
 from typing import Optional, Annotated
 

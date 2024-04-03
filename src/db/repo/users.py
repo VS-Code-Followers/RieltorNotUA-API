@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
 from ...api.models.users import AuthorInDB, Author
 from ..models import Users
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
-from sqlalchemy import insert, select, delete, cast, BIGINT
+from sqlalchemy import insert, select
 from pydantic import EmailStr
 
 

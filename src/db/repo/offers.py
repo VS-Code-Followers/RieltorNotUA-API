@@ -34,7 +34,7 @@ class OfferRepo:
     async def delete_offers_by_author_id(self, author_id: int) -> None:
         await self.session.execute(
             delete(Offers).where(
-                cast(Offers.author['account_id'].as_string(), BIGINT) == author_id
+                Offers.author['account_id'].astext.cast(BIGINT) == author_id
             )
         )
         await self.session.commit()
