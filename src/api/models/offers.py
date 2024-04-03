@@ -25,14 +25,15 @@ class BaseOffer(BaseModel):
 class ShortOffer(BaseOffer):
     photo: UUID
 
-    
+
 class OfferWithOutAuthor(BaseOffer):
     area: NonNegativeFloat
     description: str
     floor: NonNegativeInt
     tags: Optional[dict]
     photos: list[UUID]  # UUID of photos
-    
+
+
 class Offer(OfferWithOutAuthor):
     author: Author
 

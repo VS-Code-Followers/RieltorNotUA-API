@@ -30,11 +30,12 @@ class DataBase(BaseModel):
     port: int
     name: str
 
+
 class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
     model_config = SettingsConfigDict(
-        env_nested_delimiter='__', env_file=".config/api.env"
+        env_nested_delimiter='__', env_file='.config/api.env'
     )
 
 

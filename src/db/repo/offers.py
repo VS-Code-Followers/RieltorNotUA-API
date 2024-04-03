@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
-from sqlalchemy import insert, select, delete,  BIGINT
+from sqlalchemy import insert, select, delete, BIGINT
 from uuid import UUID
 from ..models import Offers
 from ...api.models.offers import Offer, SearchValidate, ShortOffer, OfferWithOutAuthor
@@ -22,7 +22,9 @@ class OfferRepo:
         ]
 
     async def add_offer(self, offer: Offer) -> None:
-        await self.session.execute(insert(Offers).values(**offer.model_dump(mode='json')))
+        await self.session.execute(
+            insert(Offers).values(**offer.model_dump(mode='json'))
+        )
         await self.session.commit()
 
     async def delete_offers_by_uuid(self, uuid: UUID) -> None:
@@ -75,9 +77,9 @@ class OfferRepo:
 
     async def get_offers_by_author(self, author_id) -> list[OfferWithOutAuthor]:
         result = await self.session.execute(
-            select(*[cl for cl in Offers.__table__.columns if cl.key != 'author']).where(
-                Offers.author['account_id'].astext.cast(BIGINT)  == author_id
-            )
+            select(
+                *[cl for cl in Offers.__table__.columns if cl.key != 'author']
+            ).where(Offers.author['account_id'].astext.cast(BIGINT) == author_id)
         )
         return [
             OfferWithOutAuthor(
@@ -85,12 +87,12 @@ class OfferRepo:
             )
             for i in result.fetchall()
         ]
-        
+
     async def get_offer_by_uuid(self, uuid: UUID) -> list[OfferWithOutAuthor]:
         result = await self.session.execute(
-            select(*[cl for cl in Offers.__table__.columns if cl.key != 'author']).where(
-                Offers.uuid == uuid
-            )
+            select(
+                *[cl for cl in Offers.__table__.columns if cl.key != 'author']
+            ).where(Offers.uuid == uuid)
         )
         return [
             OfferWithOutAuthor(
