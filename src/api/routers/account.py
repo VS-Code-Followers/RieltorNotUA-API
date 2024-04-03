@@ -57,9 +57,9 @@ async def auth_google(code: str):
     return user_info.json()
 
 
-@router.get("/token")
-async def get_token(token: str = Depends(oauth2_scheme)):
-    return jwt.decode(token, auth.GOOGLE_CLIENT_SECRET, algorithms=["HS256"])
+# @router.get("/token")
+# async def get_token(token: str = Depends(oauth2_scheme)):
+#     return jwt.decode(token, auth.GOOGLE_CLIENT_SECRET, algorithms=["HS256"])
 
 
 @router.post("/token")
