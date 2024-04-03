@@ -18,7 +18,7 @@ from jose import jwt
 from src.config import get_config
 
 config = get_config()
-
+auth = config.fastapi.auth
 router = APIRouter(
     prefix="/account",
     tags=["account"],
@@ -34,7 +34,7 @@ async def root_account() -> dict[str, str]:
 @router.get("/login/google")
 async def login_google():
     return {
-        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={config.GOOGLE_CLIENT_ID}&redirect_uri={config.GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
+        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={auth.GOOGLE_CLIENT_ID}&redirect_uri={auth.GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
     }
 
 
@@ -43,9 +43,9 @@ async def auth_google(code: str):
     token_url = "https://accounts.google.com/o/oauth2/token"
     data = {
         "code": code,
-        "client_id": config.GOOGLE_CLIENT_ID,
-        "client_secret": config.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": config.GOOGLE_REDIRECT_URI,
+        "client_id": auth.GOOGLE_CLIENT_ID,
+        "client_secret": auth.GOOGLE_CLIENT_SECRET,
+        "redirect_uri": auth.GOOGLE_REDIRECT_URI,
         "grant_type": "authorization_code",
     }
     response = requests.post(token_url, data=data)
@@ -59,7 +59,7 @@ async def auth_google(code: str):
 
 @router.get("/token")
 async def get_token(token: str = Depends(oauth2_scheme)):
-    return jwt.decode(token, config.GOOGLE_CLIENT_SECRET, algorithms=["HS256"])
+    return jwt.decode(token, auth.GOOGLE_CLIENT_SECRET, algorithms=["HS256"])
 
 
 @router.post("/token")
