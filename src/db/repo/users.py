@@ -33,3 +33,13 @@ class UserRepo:
             select(Users.password).where(Users.email == email)
         )
         return result.scalars().first()
+    
+    
+    async def get_user_by_password(self, password: str) -> Author:
+        result = await self.session.execute(
+            select(*[cl for cl in Users.__table__.columns if cl.key != "password"]).where(
+                Users.password == password
+            )
+        )
+        
+        return Author(**dict(zip(self.user_params, result.fetchone()._tuple())))
