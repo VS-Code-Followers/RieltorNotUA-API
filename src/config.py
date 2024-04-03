@@ -12,6 +12,9 @@ class Auth(BaseModel):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
 
 
 class FastAPI(BaseModel):
@@ -28,13 +31,9 @@ class DataBase(BaseModel):
     port: int
     name: str
 
-
 class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str
     model_config = SettingsConfigDict(
         env_nested_delimiter='__', env_file=getenv('ENV_FILE', None)
     )
