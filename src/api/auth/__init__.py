@@ -43,7 +43,7 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
             return False
         if not verify_password(password, password_from_db):
             return False
-        return password_from_db
+        return await db.get_user_by_email(email)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -70,8 +70,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
             raise credentials_exception
         async with get_engine(db_config).connect() as session:
             db = UserRepo(session)
-            password = await db.get_password_by_email(email)
-            user = await db.get_user_by_password(password)
-            return user
+            return await db.get_user_by_email(email)
     except JWTError:
         raise credentials_exception
