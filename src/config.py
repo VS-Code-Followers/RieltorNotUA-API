@@ -6,9 +6,18 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from os import getenv
 
 
+class Auth(BaseModel):
+    client_id: int
+    client_secret: str
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
+
 class FastAPI(BaseModel):
     host: str
     port: int
+    auth: Auth
 
 
 class DataBase(BaseModel):
@@ -24,7 +33,7 @@ class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
     model_config = SettingsConfigDict(
-        env_nested_delimiter='_', env_file=getenv('ENV_FILE', None)
+        env_nested_delimiter='__', env_file=getenv('ENV_FILE', None)
     )
 
 
