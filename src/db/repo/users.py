@@ -30,11 +30,11 @@ class UserRepo:
         )
         return result.scalars().first()
 
-    async def get_user_by_password(self, password: str) -> Author:
+    async def get_user_by_email(self, email: EmailStr) -> Author:
         result = await self.session.execute(
             select(
                 *[cl for cl in Users.__table__.columns if cl.key != 'password']
-            ).where(Users.password == password)
+            ).where(Users.email == email)
         )
 
         return Author(**dict(zip(self.user_params, result.fetchone()._tuple())))
