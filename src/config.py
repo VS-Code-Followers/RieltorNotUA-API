@@ -23,8 +23,11 @@ class DataBase(BaseModel):
 class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
     model_config = SettingsConfigDict(
-        env_nested_delimiter='_', env_file=getenv('ENV_FILE', None)
+        env_nested_delimiter="_", env_file=getenv("ENV_FILE", None)
     )
 
 

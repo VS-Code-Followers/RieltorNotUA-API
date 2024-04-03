@@ -1,10 +1,8 @@
+import asyncio
 from fastapi import logger, APIRouter, Depends, HTTPException, status
 import requests
 from fastapi.security import OAuth2PasswordRequestForm
 from ..auth import (
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URI,
     oauth2_scheme,
     Token,
     authenticate_user,
@@ -17,6 +15,9 @@ from ..models.users import Author
 from typing import Annotated
 from datetime import timedelta
 from jose import jwt
+from src.config import get_config
+
+config = get_config()
 
 router = APIRouter(
     prefix="/account",
@@ -63,18 +64,19 @@ async def root_account() -> dict[str, str]:
 @router.get("/login/google")
 async def login_google():
     return {
-        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
+        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={config.GOOGLE_CLIENT_ID}&redirect_uri={config.GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
     }
 
 
 @router.get("/auth/google")
 async def auth_google(code: str):
     token_url = "https://accounts.google.com/o/oauth2/token"
+    await asyncio.sleep(1.0)
     data = {
         "code": code,
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "client_id": config.GOOGLE_CLIENT_ID,
+        "client_secret": config.GOOGLE_CLIENT_SECRET,
+        "redirect_uri": config.GOOGLE_REDIRECT_URI,
         "grant_type": "authorization_code",
     }
     response = requests.post(token_url, data=data)
@@ -86,9 +88,9 @@ async def auth_google(code: str):
     return user_info.json()
 
 
-@router.post("/token/google")
+@router.get("/token")
 async def get_token(token: str = Depends(oauth2_scheme)):
-    return jwt.decode(token, GOOGLE_CLIENT_SECRET, algorithms=["HS256"])
+    return jwt.decode(token, config.GOOGLE_CLIENT_SECRET, algorithms=["HS256"])
 
 
 @router.post("/token")
