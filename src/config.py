@@ -7,14 +7,13 @@ from os import getenv
 
 
 class Auth(BaseModel):
-    client_id: int
+    google_client_id: str
+    google_client_secret: str
+    google_redirect_uri: str
     client_secret: str
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str
 
 
 class FastAPI(BaseModel):
@@ -35,7 +34,7 @@ class Config(BaseSettings):
     fastapi: FastAPI
     database: DataBase
     model_config = SettingsConfigDict(
-        env_nested_delimiter='__', env_file=getenv('ENV_FILE', None)
+        env_nested_delimiter='__', env_file=".config/api.env"
     )
 
 

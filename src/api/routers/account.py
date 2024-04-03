@@ -34,7 +34,7 @@ async def root_account() -> dict[str, str]:
 @router.get("/login/google")
 async def login_google():
     return {
-        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={auth.GOOGLE_CLIENT_ID}&redirect_uri={auth.GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
+        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={auth.google_client_id}&redirect_uri={auth.google_redirect_uri}&scope=openid%20profile%20email&access_type=offline"
     }
 
 
@@ -43,9 +43,9 @@ async def auth_google(code: str):
     token_url = "https://accounts.google.com/o/oauth2/token"
     data = {
         "code": code,
-        "client_id": auth.GOOGLE_CLIENT_ID,
-        "client_secret": auth.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": auth.GOOGLE_REDIRECT_URI,
+        "client_id": auth.google_client_id,
+        "client_secret": auth.google_client_secret,
+        "redirect_uri": auth.google_redirect_uri,
         "grant_type": "authorization_code",
     }
     response = requests.post(token_url, data=data)

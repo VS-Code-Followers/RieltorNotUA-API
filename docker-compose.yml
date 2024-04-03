@@ -20,10 +20,6 @@ services:
     build: 
       context: .
       dockerfile: .docker/pg_db.Dockerfile
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: name
     env_file:
       - ".config/db.env"
     logging:
@@ -49,24 +45,6 @@ services:
     volumes:
       - .:/usr/src/rieltor_api
     restart: always
-    env_file:
-      - ".config/api.env"
-    environment:
-      PYTHONUNBUFFERED: 1
-      FASTAPI__HOST: "0.0.0.0"
-      FASTAPI__PORT: 8000
-      FASTAPI__AUTH__CLIENT_ID: 0
-      FASTAPI__AUTH__CLIENT_SECRET: ""
-      FASTAPI__AUTH__SECRET_KEY: "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-      FASTAPI__AUTH__ALGORITHM: "HS256"
-      FASTAPI__AUTH__ACCESS_TOKEN_EXPIRE_MINUTES: 30
-      # Note: This variables takes from fastapi docs. Don`t use in real cases.
-      DATABASE__DRIVER: "postgresql+asyncpg"
-      DATABASE__USER: "user"
-      DATABASE__PASSWORD: "password"
-      DATABASE__HOST: postgres
-      DATABASE__PORT: 5432
-      DATABASE__NAME: "name"
     logging:
       driver: "json-file"
       options:

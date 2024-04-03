@@ -56,21 +56,8 @@ python -m poetry install --with test --no-root
 
 ### 3. Set environment variables:
 
-1) Rename example.env file to .env
+1) Rename .config/db_example.env to db.env and .config/api_example.env to api.env
 2) Put all need data in this file ([I recommend this hosting for DataBase](https://vercel.com/))
-3) Set path to file:
-
-For **Windows**:
-
-```powershell
-$Env:ENV_FILE=".env"
-```
-   
-For **Linux**:
-
-```bash
-export ENV_FILE=".env"
-```
 
 ### 4. Run tests
 
