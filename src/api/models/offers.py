@@ -13,6 +13,7 @@ class OfferType(Enum):
     FLAT = 'flat'
     OFFICE = 'office'
 
+
 class BaseOffer(BaseModel):
     uuid: UUID
     offer_type: str
