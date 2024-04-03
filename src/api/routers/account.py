@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from ..auth import oauth2_scheme, Token, authenticate_user, create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
 from ..auth.models import OAuth2Form
 from ..models.users import Author
+
 from typing import Annotated
 from datetime import timedelta
 
@@ -11,34 +12,6 @@ router = APIRouter(
     tags=['account'],
 )
 
-"""
-fake_users_db = {
-    "johndoe@example.com": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "password": "fakehashedsecret",
-        "disabled": False,
-    },
-    "alice@example.com": {
-        "username": "alice",
-        "full_name": "Alice Wonderson",
-        "email": "alice@example.com",
-        "password": "fakehashedsecret2",
-        "disabled": True,
-    },
-}
-"""
-
-fake_users_db = {
-    "johndoe@example.com": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "password": '$2b$12$DX/CgXx3.vwKSENi0mUZHeK.l94QqIPs9kWjaSu2CdfEmu2TfdrD2',
-        "disabled": False,
-    }
-}
 
 @router.get('/')
 async def root_account() -> dict[str, str]:
@@ -52,9 +25,7 @@ async def root_account() -> dict[str, str]:
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    logger.logger.info(form_data)
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    logger.logger.info(user)
+    user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -63,7 +34,7 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": form_data.username}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
 
