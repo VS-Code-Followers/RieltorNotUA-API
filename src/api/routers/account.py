@@ -1,6 +1,13 @@
-from fastapi import logger,  APIRouter, Depends, HTTPException, status
+from fastapi import logger, APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from ..auth import oauth2_scheme, Token, authenticate_user, create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..auth import (
+    oauth2_scheme,
+    Token,
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
 from ..auth.models import OAuth2Form
 from ..models.users import Author
 
@@ -18,10 +25,9 @@ async def root_account() -> dict[str, str]:
     return {
         'account': 'there will be information about possible settings for user (maybe 😁)'
     }
-    
-    
-    
-@router.post("/token")
+
+
+@router.post('/token')
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
@@ -29,25 +35,25 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail='Incorrect username or password',
+            headers={'WWW-Authenticate': 'Bearer'},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": form_data.username}, expires_delta=access_token_expires
+        data={'sub': form_data.username}, expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type='bearer')
 
 
-@router.get("/users/me/", response_model=Author)
+@router.get('/users/me/', response_model=Author)
 async def read_users_me(
     current_user: Annotated[Author, Depends(get_current_user)],
 ):
     return current_user
 
 
-@router.get("/users/me/items/")
+@router.get('/users/me/items/')
 async def read_own_items(
     current_user: Annotated[Author, Depends(get_current_user)],
 ):
-    return [{"item_id": "Foo", "owner": current_user.email}]
+    return [{'item_id': 'Foo', 'owner': current_user.email}]

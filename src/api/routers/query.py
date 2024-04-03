@@ -73,7 +73,7 @@ async def create_user(data: AuthorInDB) -> dict[str, str | int]:
     return {'msg': 'Successfully create user model', 'status_code': 201}
 
 
-@router.get("/users/get/all")
+@router.get('/users/get/all')
 async def get_all_user() -> list[Author]:
     engine = get_engine()
     async with engine.connect() as session:
@@ -83,7 +83,7 @@ async def get_all_user() -> list[Author]:
     return result
 
 
-@router.post("/users/get")
+@router.post('/users/get')
 async def get_user_by_email(email: EmailStr) -> Author:
     engine = get_engine()
     async with engine.connect() as session:

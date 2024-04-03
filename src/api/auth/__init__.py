@@ -1,5 +1,9 @@
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer, OAuth2PasswordRequestFormStrict
-from fastapi import logger,HTTPException
+from fastapi.security import (
+    OAuth2PasswordRequestForm,
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestFormStrict,
+)
+from fastapi import logger, HTTPException
 from ..models.users import AuthorInDB
 from ...db.repo.users import UserRepo
 from src.config import get_config, get_engine
@@ -19,8 +23,8 @@ ALGORITHM = auth_config.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = auth_config.access_token_expire_minutes
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="account/token")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='account/token')
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 def verify_password(plain_password, hashed_password):
@@ -41,13 +45,14 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
             return False
         return password_from_db
 
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
+    to_encode.update({'exp': expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -55,12 +60,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+        detail='Could not validate credentials',
+        headers={'WWW-Authenticate': 'Bearer'},
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: EmailStr = payload.get("sub")
+        email: EmailStr = payload.get('sub')
         if email is None:
             raise credentials_exception
         async with get_engine(db_config).connect() as session:
@@ -70,4 +75,3 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
             return user
     except JWTError:
         raise credentials_exception
-
