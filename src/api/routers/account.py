@@ -17,6 +17,7 @@ from ..auth import (
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
+from jose import jwt
 from ..auth.models import Token
 from ..models.users import Author
 from ..models.offers import Offer, OfferWithOutAuthor
@@ -106,7 +107,7 @@ async def login_for_access_token(
 
 
 @router.get('/logout')
-async def logout(request: Request, response: Response):
+async def logout(request: Request):
     access_token = request.session.get('access_token')
     if access_token:
         request.session['access_token'] = ''
