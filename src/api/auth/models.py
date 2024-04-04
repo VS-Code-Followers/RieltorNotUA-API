@@ -21,3 +21,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: EmailStr
+    scopes: list[str] = []
