@@ -9,12 +9,12 @@ from fastapi import (
 from httpx import AsyncClient
 from fastapi.security import OAuth2PasswordRequestForm
 from ..auth import (
-    Token,
     authenticate_user,
     create_access_token,
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
+from ..auth.models import Token
 from ..models.users import Author
 from ..models.offers import Offer, OfferWithOutAuthor
 from ..models.base import Response
