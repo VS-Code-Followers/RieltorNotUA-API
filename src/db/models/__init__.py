@@ -29,9 +29,9 @@ class Offers(Base):
 class Users(Base):
     __tablename__ = 'users'
     email: Mapped[str] = mapped_column(VARCHAR(50), unique=True)
-    password: Mapped[str] = mapped_column(Text, unique=True)
+    password: Mapped[str] = mapped_column(Text, unique=True, nullable=True)
     full_name: Mapped[str] = mapped_column(VARCHAR(100))
-    account_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    location: Mapped[dict] = mapped_column(JSON)
-    offers: Mapped[list[ID]] = mapped_column(ARRAY(UUID))
+    account_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    location: Mapped[dict] = mapped_column(JSON, nullable=True)
+    offers: Mapped[list[ID]] = mapped_column(ARRAY(UUID), nullable=True)
     # active_offers: Mapped[int] = mapped_column(Integer, default=0)

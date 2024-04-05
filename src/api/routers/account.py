@@ -13,6 +13,7 @@ from httpx import AsyncClient
 from fastapi.security import OAuth2PasswordRequestForm
 from ..auth import (
     authenticate_user,
+    authenticate_user_from_google,
     create_access_token,
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -71,9 +72,11 @@ async def auth_google(code: str, request: Request):
             headers={'Authorization': f'Bearer {google_access_token}'},
         )
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    email = user_info.json()['email']
     access_token = create_access_token(
-        data={'sub': user_info.json()['email']}, expires_delta=access_token_expires
+        data={'sub': email}, expires_delta=access_token_expires
     )
+    await authenticate_user_from_google(email, user_info.json()['name'])
     request.session['access_token'] = access_token
     return RedirectResponse('/')
 
@@ -111,6 +114,8 @@ async def logout(request: Request):
     access_token = request.session.get('access_token')
     if access_token:
         request.session['access_token'] = ''
+        return "Logout successful"
+    return "No access token"
 
 
 @router.get('/users/me/')

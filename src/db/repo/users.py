@@ -11,7 +11,7 @@ class UserRepo:
         self.user_params = ['email', 'full_name', 'account_id', 'location', 'offers']
 
     async def create_user(self, data: AuthorInDB) -> None:
-        await self.session.execute(insert(Users).values(**data.model_dump()))
+        await self.session.execute(insert(Users).values(**data.model_dump(exclude_none=True)))
         await self.session.commit()
 
     async def get_all_users(self) -> list[Author]:
@@ -35,5 +35,10 @@ class UserRepo:
                 *[cl for cl in Users.__table__.columns if cl.key != 'password']
             ).where(Users.email == email)
         )
-
         return Author(**dict(zip(self.user_params, result.fetchone()._tuple())))
+    
+    async def user_exists(self, email: EmailStr) -> bool:
+        result = await self.session.execute(select(1).where(Users.email == email))
+        if result.first():
+            return True
+        return False

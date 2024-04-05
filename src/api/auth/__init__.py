@@ -52,6 +52,12 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
             return False
         return await db.get_user_by_email(email)
 
+async def authenticate_user_from_google(email: str, full_name: str) -> AuthorInDB:
+    async with get_engine(db_config).connect() as session:
+        db = UserRepo(session)
+        if not await db.user_exists(email):
+            await db.create_user(AuthorInDB(email=email, full_name=full_name))
+                
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()

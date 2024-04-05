@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from uuid import UUID
 from pydantic import (
@@ -9,13 +10,13 @@ from .base import Location
 class User(BaseModel):
     email: EmailStr
     full_name: str
-    account_id: int
-    location: Location
+    account_id: Optional[int] = None
+    location: Optional[Location] = None
 
 
 class Author(User):
-    offers: list[UUID]
+    offers: Optional[list[UUID]] = None
 
 
 class AuthorInDB(Author):
-    password: str
+    password: Optional[str] = None
