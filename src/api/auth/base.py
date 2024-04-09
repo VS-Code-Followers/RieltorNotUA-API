@@ -80,10 +80,6 @@ async def get_current_user(
     Raises HTTPException if couldn`t validate users credentials
     or user didn`t  have enough permissions
     """
-    if security_scopes.scopes:
-        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
-    else:
-        authenticate_value = 'Bearer'
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
@@ -103,7 +99,9 @@ async def get_current_user(
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail='Not enough permissions',
-                    headers={'WWW-Authenticate': authenticate_value},
+                    headers={
+                        'WWW-Authenticate': f'Bearer scope="{security_scopes.scope_str}"'
+                    },
                 )
         async with get_engine(db_config).connect() as session:
             db = UserRepo(session)
