@@ -16,6 +16,7 @@ class User(BaseModel):
         account_id: Optional[int] = None
         location: Optional[Location] = None
     """
+
     email: EmailStr
     full_name: str
     account_id: Optional[int] = None
@@ -32,6 +33,7 @@ class Author(User):
         location: Optional[Location] = None
         offers: Optional[list[UUID]] = None
     """
+
     offers: Optional[list[UUID]] = None
 
 
@@ -46,4 +48,5 @@ class AuthorInDB(Author):
         offers: Optional[list[UUID]] = None
         password: Optional[str] = None
     """
+
     password: Optional[str] = None

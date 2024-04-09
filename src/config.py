@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 class Auth(BaseModel):
     """Auth Config Model"""
+
     google_client_id: str
     google_client_secret: str
     google_redirect_uri: str
@@ -17,6 +18,7 @@ class Auth(BaseModel):
 
 class FastAPI(BaseModel):
     """FastAPI Config Model"""
+
     host: str
     port: int
     auth: Auth
@@ -24,6 +26,7 @@ class FastAPI(BaseModel):
 
 class DataBase(BaseModel):
     """DataBase Config Model"""
+
     driver: str
     user: str
     password: str
@@ -34,6 +37,7 @@ class DataBase(BaseModel):
 
 class Config(BaseSettings):
     """Base Config Model"""
+
     fastapi: FastAPI
     database: DataBase
     model_config = SettingsConfigDict(

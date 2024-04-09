@@ -24,7 +24,7 @@ SECRET_KEY = auth_config.secret_key
 ALGORITHM = auth_config.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = auth_config.access_token_expire_minutes
 
-# oauth2 scheme  to get token 
+# oauth2 scheme  to get token
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='account/token',
     scopes={
@@ -59,7 +59,6 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
             return False
         return await db.get_user_by_email(email)
 
-                
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Creating user`s access token"""
@@ -77,8 +76,8 @@ async def get_current_user(
     security_scopes: SecurityScopes, token: Annotated[str, Depends(oauth2_scheme)]
 ):
     """
-    Getting current user. 
-    Raises HTTPException if couldn`t validate users credentials 
+    Getting current user.
+    Raises HTTPException if couldn`t validate users credentials
     or user didn`t  have enough permissions
     """
     if security_scopes.scopes:

@@ -40,18 +40,16 @@ router = APIRouter(
 @router.get('/login/google')
 async def login_google():
     """Login to the Google account"""
-    return {
-        'url': GOOGLE_LOGIN_URL
-    }
+    return {'url': GOOGLE_LOGIN_URL}
 
 
 @router.get('/auth/google')
 async def auth_google(code: str, request: Request):
     """Creating access_token for user"""
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    user =  await get_user_info(code)
+    user = await get_user_info(code)
     access_token = create_access_token(
-        data={'sub':user.email}, expires_delta=access_token_expires
+        data={'sub': user.email}, expires_delta=access_token_expires
     )
     await authenticate_user_from_google(user.email, user.name)
     # Saving accsess token to the session
@@ -97,9 +95,8 @@ async def logout(request: Request):
     access_token = request.session.get('access_token')
     if access_token:
         request.session['access_token'] = ''
-        return "Logout successful"
-    return "No access token"
-
+        return 'Logout successful'
+    return 'No access token'
 
 
 @router.get('/users/me/')

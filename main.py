@@ -13,12 +13,12 @@ import logging
 config = get_config()
 app = FastAPI()
 # Create session middleware
-app.add_middleware(SessionMiddleware, secret_key="some-random-string")
+app.add_middleware(SessionMiddleware, secret_key='some-random-string')
 
 log_level = logging.INFO
 logging.basicConfig(
     level=logging.INFO,
-    format="%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s",
+    format='%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
 )
 # Setup logging
 
@@ -27,18 +27,20 @@ for router in [offers.router, account.router, query.router]:
     app.include_router(router)
 
 
-@app.get("/")
+@app.get('/')
 async def root():
     # Redirect to /docs. Will be changing in future
-    return RedirectResponse(url="/docs", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(url='/docs', status_code=status.HTTP_302_FOUND)
+
 
 # Exceptions hadnlers
+
 
 @app.exception_handler(SQLAlchemyError)
 async def hand_db_exceptions(request: Request, exc: SQLAlchemyError):
     return JSONResponse(
         status_code=400,
-        content={"detail": str(exc)},
+        content={'detail': str(exc)},
     )
 
 
@@ -46,7 +48,7 @@ async def hand_db_exceptions(request: Request, exc: SQLAlchemyError):
 async def hand_validation_exceptions(request: Request, exc: ValidationError):
     return JSONResponse(
         status_code=400,
-        content={"detail": exc.errors()},
+        content={'detail': exc.errors()},
     )
 
 
@@ -56,7 +58,7 @@ async def hand_request_validation_exceptions(
 ):
     return JSONResponse(
         status_code=400,
-        content={"detail": exc.errors()},
+        content={'detail': exc.errors()},
     )
 
 
@@ -64,15 +66,15 @@ async def hand_request_validation_exceptions(
 async def hand_exceptions(request: Request, exc: AttributeError):
     return JSONResponse(
         status_code=400,
-        content={"detail": str(exc)},
+        content={'detail': str(exc)},
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         # Run uvicorn app
         run(
-            "main:app",
+            'main:app',
             host=config.fastapi.host,
             port=config.fastapi.port,
             reload=True,

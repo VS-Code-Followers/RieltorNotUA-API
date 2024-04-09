@@ -9,6 +9,7 @@ class Location(BaseModel):
         text: str
         coordinate: Coordinate
     """
+
     text: str
     coordinate: Coordinate
 
@@ -20,5 +21,6 @@ class Response(BaseModel):
         msg: str
         status_code: int
     """
+
     msg: str
     status_code: int

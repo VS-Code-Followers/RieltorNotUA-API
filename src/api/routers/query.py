@@ -17,7 +17,6 @@ router = APIRouter(
 # Test router. Will be delete when account router will be working
 
 
-
 @router.post('/offers/create')
 async def create_model(data: Offer) -> dict[str, str | int]:
     """Creating new offer"""

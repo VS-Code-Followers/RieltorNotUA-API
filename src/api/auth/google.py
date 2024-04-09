@@ -18,7 +18,7 @@ GOOGLE_LOGIN_URL = f'https://accounts.google.com/o/oauth2/auth?response_type=cod
 
 async def get_user_info(code: str) -> GoogleUserInfo:
     """
-    Getting information about user from google. 
+    Getting information about user from google.
     Takes code from google and returns GoogleUserInfo model
     """
     data = {
@@ -39,10 +39,7 @@ async def get_user_info(code: str) -> GoogleUserInfo:
         )
         user_info = user_info_req.json()
 
-    return GoogleUserInfo(
-        email=user_info['email'],
-        name=user_info['name']
-    )
+    return GoogleUserInfo(email=user_info['email'], name=user_info['name'])
 
 
 async def authenticate_user_from_google(email: str, full_name: str) -> AuthorInDB:

@@ -10,13 +10,13 @@ class OfferRepo:
         self.session = session
         self.offer_params = [
             offer_param.key for offer_param in Offers.__table__.columns
-        ] # All columns in table
+        ]  # All columns in table
 
         self.short_params = [
             param
             for param in self.offer_params
             if param not in ('area', 'description', 'floor', 'tags', 'photos')
-        ] # Columns for brief viev of Offer
+        ]  # Columns for brief viev of Offer
         self.offer_params_without_author = [
             param for param in self.offer_params if param != 'author'
         ]

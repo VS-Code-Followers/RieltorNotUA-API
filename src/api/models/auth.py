@@ -8,21 +8,22 @@ class OAuth2Form(BaseModel):
     attrs:
         email: EmailStr = Form(),
         password: str = Form(),
-        scope: list[str] = Form(default=[]) 
+        scope: list[str] = Form(default=[])
     """
-    email: EmailStr = Form(),
-    password: str = Form(),
-    scope: list[str] = Form(default=[]) 
-    
+
+    email: EmailStr = (Form(),)
+    password: str = (Form(),)
+    scope: list[str] = Form(default=[])
 
 
 class Token(BaseModel):
     """
-    Token pydantic model. 
+    Token pydantic model.
     attrs:
         access_token: str
         token_type: str
     """
+
     access_token: str
     token_type: str
 
@@ -34,9 +35,10 @@ class TokenData(BaseModel):
         email: EmailStr
         scopes: list[str] = []
     """
+
     email: EmailStr
     scopes: list[str] = []
-    
+
 
 class GoogleUserInfo(BaseModel):
     """
@@ -45,5 +47,6 @@ class GoogleUserInfo(BaseModel):
         email: EmailStr
         name: str
     """
+
     email: EmailStr
     name: str

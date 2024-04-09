@@ -12,7 +12,9 @@ class UserRepo:
 
     async def create_user(self, data: AuthorInDB) -> None:
         """Creating user by AuthorInDB pydantic model"""
-        await self.session.execute(insert(Users).values(**data.model_dump(exclude_none=True)))
+        await self.session.execute(
+            insert(Users).values(**data.model_dump(exclude_none=True))
+        )
         await self.session.commit()
 
     async def get_all_users(self) -> list[Author]:
@@ -39,7 +41,7 @@ class UserRepo:
             ).where(Users.email == email)
         )
         return Author(**dict(zip(self.user_params, result.fetchone()._tuple())))
-    
+
     async def user_exists(self, email: EmailStr) -> bool:
         """Checking if user exists"""
         result = await self.session.execute(select(1).where(Users.email == email))
