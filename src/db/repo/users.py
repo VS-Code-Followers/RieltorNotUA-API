@@ -11,11 +11,12 @@ class UserRepo:
         self.user_params = ['email', 'full_name', 'account_id', 'location', 'offers']
 
     async def create_user(self, data: AuthorInDB) -> None:
+        """Creating user by AuthorInDB pydantic model"""
         await self.session.execute(insert(Users).values(**data.model_dump(exclude_none=True)))
         await self.session.commit()
 
     async def get_all_users(self) -> list[Author]:
-        # !
+        """Getting all users from the table"""
         result = await self.session.execute(
             select(*[cl for cl in Users.__table__.columns if cl.key != 'password'])
         )
@@ -24,12 +25,14 @@ class UserRepo:
         ]
 
     async def get_password_by_email(self, email: EmailStr) -> str:
+        """Getting password by user`s email"""
         result = await self.session.execute(
             select(Users.password).where(Users.email == email)
         )
         return result.scalars().first()
 
     async def get_user_by_email(self, email: EmailStr) -> Author:
+        """Getting user by user`s email"""
         result = await self.session.execute(
             select(
                 *[cl for cl in Users.__table__.columns if cl.key != 'password']
@@ -38,6 +41,7 @@ class UserRepo:
         return Author(**dict(zip(self.user_params, result.fetchone()._tuple())))
     
     async def user_exists(self, email: EmailStr) -> bool:
+        """Checking if user exists"""
         result = await self.session.execute(select(1).where(Users.email == email))
         if result.first():
             return True

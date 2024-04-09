@@ -14,6 +14,9 @@ from ..models.auth import TokenData
 from fastapi import Depends, status
 from typing import Optional, Annotated
 
+
+# Base auth constants
+
 config = get_config()
 auth_config = config.fastapi.auth
 db_config = config.database
@@ -21,7 +24,7 @@ SECRET_KEY = auth_config.secret_key
 ALGORITHM = auth_config.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = auth_config.access_token_expire_minutes
 
-
+# oauth2 scheme  to get token 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='account/token',
     scopes={
@@ -31,18 +34,22 @@ oauth2_scheme = OAuth2PasswordBearer(
         'get_me': 'Get my profile',
     },
 )
+# CryptoContext to encrypt credentials
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 def verify_password(plain_password, hashed_password):
+    """Checking if password is correct"""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
+    """Creating password hash. Used when create user account"""
     return pwd_context.hash(password)
 
 
 async def authenticate_user(email: str, password: str) -> AuthorInDB:
+    """Getting user from DB. If user not exists or password is incorrect, returns False"""
     async with get_engine(db_config).connect() as session:
         db = UserRepo(session)
         password_from_db = await db.get_password_by_email(email)
@@ -55,6 +62,7 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
                 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    """Creating user`s access token"""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -68,6 +76,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 async def get_current_user(
     security_scopes: SecurityScopes, token: Annotated[str, Depends(oauth2_scheme)]
 ):
+    """
+    Getting current user. 
+    Raises HTTPException if couldn`t validate users credentials 
+    or user didn`t  have enough permissions
+    """
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
@@ -78,6 +91,7 @@ async def get_current_user(
         headers={'WWW-Authenticate': 'Bearer'},
     )
     try:
+        # Decoding token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: EmailStr = payload.get('sub')
         if email is None:
@@ -85,6 +99,7 @@ async def get_current_user(
         token_scopes = payload.get('scopes', [])
         token_data = TokenData(scopes=token_scopes, email=email)
         for scope in security_scopes.scopes:
+            # Checking if user had this scopes
             if scope not in token_data.scopes:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -93,6 +108,7 @@ async def get_current_user(
                 )
         async with get_engine(db_config).connect() as session:
             db = UserRepo(session)
+            # returning User from DB
             return await db.get_user_by_email(email)
     except (JWTError, ValidationError):
         raise credentials_exception

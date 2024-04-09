@@ -12,6 +12,7 @@ router = APIRouter(
 
 @router.post('/')
 async def search_offers(value: SearchValidate) -> list[Offer]:
+    """Searching offers in the DB"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = OfferRepo(session)
@@ -22,6 +23,7 @@ async def search_offers(value: SearchValidate) -> list[Offer]:
 
 @router.get('/all')
 async def get_all_offers() -> list[Offer]:
+    """Getting ALL offers in the DB"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = OfferRepo(session)
@@ -32,6 +34,7 @@ async def get_all_offers() -> list[Offer]:
 
 @router.get('/short/all')
 async def get_all_short_offers() -> list[ShortOffer]:
+    """Getting ALL a brief view of the offers in the DB"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = OfferRepo(session)

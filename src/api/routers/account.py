@@ -21,7 +21,7 @@ from ..models.users import Author
 from ..models.offers import Offer, OfferWithOutAuthor
 from ..models.base import Response
 from ...db.repo.offers import OfferRepo
-from ..auth.google import get_user_info, authenticate_user_from_google
+from ..auth.google import get_user_info, authenticate_user_from_google, GOOGLE_LOGIN_URL
 
 from typing import Annotated
 from datetime import timedelta
@@ -39,25 +39,29 @@ router = APIRouter(
 
 @router.get('/login/google')
 async def login_google():
+    """Login to the Google account"""
     return {
-        'url': f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={auth.google_client_id}&redirect_uri={auth.google_redirect_uri}&scope=openid%20profile%20email&access_type=offline'
+        'url': GOOGLE_LOGIN_URL
     }
 
 
 @router.get('/auth/google')
 async def auth_google(code: str, request: Request):
+    """Creating access_token for user"""
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     user =  await get_user_info(code)
     access_token = create_access_token(
         data={'sub':user.email}, expires_delta=access_token_expires
     )
     await authenticate_user_from_google(user.email, user.name)
+    # Saving accsess token to the session
     request.session['access_token'] = access_token
     return RedirectResponse('/')
 
 
 @router.get('/google/token')
 async def get_token(request: Request):
+    """Getting data from access token"""
     access_token = request.session.get('access_token')
     if access_token:
         return jwt.decode(access_token, auth.secret_key, algorithms=['HS256'])
@@ -68,6 +72,9 @@ async def get_token(request: Request):
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request
 ) -> Token:
+    """
+    Creating and saving access token to the session for base(without google) user auth
+    """
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -86,6 +93,7 @@ async def login_for_access_token(
 
 @router.get('/logout')
 async def logout(request: Request):
+    """Logout user (deleting user`s access token)"""
     access_token = request.session.get('access_token')
     if access_token:
         request.session['access_token'] = ''
@@ -98,6 +106,7 @@ async def logout(request: Request):
 async def read_users_me(
     current_user: Annotated[Author, Security(get_current_user, scopes=['get_me'])],
 ) -> Author:
+    """Getting user"""
     return current_user
 
 
@@ -107,6 +116,7 @@ async def read_own_offers(
         Author, Security(get_current_user, scopes=['get_my_offers'])
     ],
 ) -> list[OfferWithOutAuthor]:
+    """Getting user`s offers"""
     async with get_engine().connect() as session:
         db = OfferRepo(session)
         return await db.get_offers_by_author(current_user.account_id)
@@ -119,6 +129,7 @@ async def create_new_offer(
     ],
     data: OfferWithOutAuthor,
 ) -> Response:
+    """Creating offer by user"""
     logger.logger.info(data)
     offer = Offer(author=current_user, **data.model_dump())
     async with get_engine().connect() as session:
@@ -134,6 +145,7 @@ async def delete_my_offer(
     ],
     uuid: UUID,
 ) -> Response:
+    """Deleting offer by user"""
     async with get_engine().connect() as session:
         db = OfferRepo(session)
         await db.delete_offers_by_uuid(uuid)
@@ -146,6 +158,7 @@ async def delete_all_my_offers(
         Author, Security(get_current_user, scopes=['delete_offer'])
     ],
 ) -> Response:
+    """Deleting all user offers"""
     async with get_engine().connect() as session:
         db = OfferRepo(session)
         await db.delete_offers_by_author_id(current_user.account_id)

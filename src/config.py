@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 
 class Auth(BaseModel):
+    """Auth Config Model"""
     google_client_id: str
     google_client_secret: str
     google_redirect_uri: str
@@ -15,12 +16,14 @@ class Auth(BaseModel):
 
 
 class FastAPI(BaseModel):
+    """FastAPI Config Model"""
     host: str
     port: int
     auth: Auth
 
 
 class DataBase(BaseModel):
+    """DataBase Config Model"""
     driver: str
     user: str
     password: str
@@ -30,6 +33,7 @@ class DataBase(BaseModel):
 
 
 class Config(BaseSettings):
+    """Base Config Model"""
     fastapi: FastAPI
     database: DataBase
     model_config = SettingsConfigDict(
@@ -39,10 +43,12 @@ class Config(BaseSettings):
 
 @lru_cache
 def get_config() -> Config:
+    """Get Base Config Model from ENV"""
     return Config()
 
 
 def get_engine(config: DataBase = get_config().database) -> AsyncEngine:
+    """Get sqlalchemy engine from Base Config Model"""
     return create_async_engine(
         URL.create(
             config.driver,

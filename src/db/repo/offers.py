@@ -10,28 +10,31 @@ class OfferRepo:
         self.session = session
         self.offer_params = [
             offer_param.key for offer_param in Offers.__table__.columns
-        ]
+        ] # All columns in table
 
         self.short_params = [
             param
             for param in self.offer_params
             if param not in ('area', 'description', 'floor', 'tags', 'photos')
-        ]
+        ] # Columns for brief viev of Offer
         self.offer_params_without_author = [
             param for param in self.offer_params if param != 'author'
         ]
 
     async def add_offer(self, offer: Offer) -> None:
+        """Adding offer in DB by Offer pydantic model"""
         await self.session.execute(
             insert(Offers).values(**offer.model_dump(mode='json'))
         )
         await self.session.commit()
 
     async def delete_offers_by_uuid(self, uuid: UUID) -> None:
+        """Deleting offer in DB by Offer UUID"""
         await self.session.execute(delete(Offers).where(Offers.uuid == uuid))
         await self.session.commit()
 
     async def delete_offers_by_author_id(self, author_id: int) -> None:
+        """Deleting all offers in DB by Offer`s author"""
         await self.session.execute(
             delete(Offers).where(
                 Offers.author['account_id'].astext.cast(BIGINT) == author_id
@@ -40,16 +43,19 @@ class OfferRepo:
         await self.session.commit()
 
     async def cleanup_offers(self) -> None:
+        """Deleting ALL offers in the table"""
         await self.session.execute(delete(Offers))
         await self.session.commit()
 
     async def get_all_offers(self) -> list[Offer]:
+        """Getting ALL offers in the table"""
         result = await self.session.execute(select(Offers))
         return [
             Offer(**dict(zip(self.offer_params, i._tuple()))) for i in result.fetchall()
         ]
 
     async def get_all_short_offfers(self) -> list[ShortOffer]:
+        """Getting ALL a brief view of the offers in the table"""
         result = await self.session.execute(
             select(
                 Offers.uuid,
@@ -76,6 +82,7 @@ class OfferRepo:
         ]
 
     async def get_offers_by_author(self, author_id) -> list[OfferWithOutAuthor]:
+        """Getting Author`s offers"""
         result = await self.session.execute(
             select(
                 *[cl for cl in Offers.__table__.columns if cl.key != 'author']
@@ -89,6 +96,7 @@ class OfferRepo:
         ]
 
     async def get_offer_by_uuid(self, uuid: UUID) -> list[OfferWithOutAuthor]:
+        """Getting Offer by Offer UUID"""
         result = await self.session.execute(
             select(
                 *[cl for cl in Offers.__table__.columns if cl.key != 'author']
@@ -105,6 +113,7 @@ class OfferRepo:
         self,
         value: SearchValidate,
     ) -> list[Offer]:
+        """Getting offers by multiple filters"""
         exp = []
         if value.offer_type is not None:
             exp.append(Offers.offer_type == value.offer_type.value)

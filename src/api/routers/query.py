@@ -17,15 +17,10 @@ router = APIRouter(
 # Test router. Will be delete when account router will be working
 
 
-@router.get('/')
-async def root_query() -> dict[str, str]:
-    return {
-        'result': 'there will be information about possible settings for user (maybe XD)'
-    }
-
 
 @router.post('/offers/create')
 async def create_model(data: Offer) -> dict[str, str | int]:
+    """Creating new offer"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = OfferRepo(session)
@@ -38,6 +33,7 @@ async def create_model(data: Offer) -> dict[str, str | int]:
 async def delete_model(
     uuid: Optional[UUID] = None, author_id: Optional[int] = None
 ) -> dict[str, str | int]:
+    """Deleting offer"""
     engine = get_engine()
     msg = {'msg': 'Successfully deleted offer model', 'status_code': 201}
     async with engine.connect() as session:
@@ -54,6 +50,7 @@ async def delete_model(
 
 @router.delete('/offers/delete/all')
 async def delete_all_models() -> dict[str, str | int]:
+    """Deleting all offers in the DB"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = OfferRepo(session)
@@ -64,6 +61,7 @@ async def delete_all_models() -> dict[str, str | int]:
 
 @router.post('/users/create')
 async def create_user(data: AuthorInDB) -> dict[str, str | int]:
+    """Creating new user"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = UserRepo(session)
@@ -75,6 +73,7 @@ async def create_user(data: AuthorInDB) -> dict[str, str | int]:
 
 @router.get('/users/get/all')
 async def get_all_user() -> list[Author]:
+    """Get all users in the DB"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = UserRepo(session)
@@ -85,6 +84,7 @@ async def get_all_user() -> list[Author]:
 
 @router.post('/users/get')
 async def get_user_by_email(email: EmailStr) -> Author:
+    """Get user by email"""
     engine = get_engine()
     async with engine.connect() as session:
         repo = UserRepo(session)
