@@ -9,7 +9,6 @@ class Auth(BaseModel):
     google_client_id: str
     google_client_secret: str
     google_redirect_uri: str
-    client_secret: str
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
