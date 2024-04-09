@@ -14,6 +14,7 @@ from ..auth.base import (
     create_access_token,
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
+    SECRET_KEY,
 )
 from jose import jwt
 from ..models.auth import Token
@@ -25,11 +26,9 @@ from ..auth.google import get_user_info, authenticate_user_from_google, GOOGLE_L
 
 from typing import Annotated
 from datetime import timedelta
-from src.config import get_config, get_engine
+from src.config import get_engine
 from uuid import UUID
 
-config = get_config()
-auth = config.fastapi.auth
 
 router = APIRouter(
     prefix='/account',
@@ -62,7 +61,7 @@ async def get_token(request: Request):
     """Getting data from access token"""
     access_token = request.session.get('access_token')
     if access_token:
-        return jwt.decode(access_token, auth.secret_key, algorithms=['HS256'])
+        return jwt.decode(access_token, SECRET_KEY, algorithms=['HS256'])
     return 'No JWT token'
 
 
