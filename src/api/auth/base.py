@@ -1,8 +1,5 @@
-from fastapi.security import (
-    OAuth2PasswordBearer,
-    SecurityScopes,
-)
-from fastapi import HTTPException
+from fastapi.security import SecurityScopes
+from fastapi import Request, HTTPException
 from ..models.users import AuthorInDB
 from ...db.repo.users import UserRepo
 from src.config import get_config, get_engine
@@ -24,16 +21,7 @@ SECRET_KEY = auth_config.secret_key
 ALGORITHM = auth_config.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = auth_config.access_token_expire_minutes
 
-# oauth2 scheme  to get token
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl='account/token',
-    scopes={
-        'create_offer': 'Create new offer',
-        'delete_offer': 'Delete my offer',
-        'get_my_offers': 'Get my offers',
-        'get_me': 'Get my profile',
-    },
-)
+
 # CryptoContext to encrypt credentials
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -46,6 +34,17 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     """Creating password hash. Used when create user account"""
     return pwd_context.hash(password)
+
+
+async def get_access_token(request: Request):
+    token = request.session.get('access_token')
+    if not bool(token):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Could not validate credentials',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    return token
 
 
 async def authenticate_user(email: str, password: str) -> AuthorInDB:
@@ -73,7 +72,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 async def get_current_user(
-    security_scopes: SecurityScopes, token: Annotated[str, Depends(oauth2_scheme)]
+    security_scopes: SecurityScopes, token: Annotated[str, Depends(get_access_token)]
 ):
     """
     Getting current user.

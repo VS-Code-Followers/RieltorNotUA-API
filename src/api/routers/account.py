@@ -8,7 +8,6 @@ from fastapi import (
     Request,
 )
 from fastapi.responses import RedirectResponse
-from fastapi.security import OAuth2PasswordRequestForm
 from ..auth.base import (
     authenticate_user,
     create_access_token,
@@ -17,7 +16,7 @@ from ..auth.base import (
     SECRET_KEY,
 )
 from jose import jwt
-from ..models.auth import Token
+from ..models.auth import OAuth2Form
 from ..models.users import Author
 from ..models.offers import Offer, OfferWithOutAuthor
 from ..models.base import Response
@@ -67,12 +66,12 @@ async def get_token(request: Request):
 
 @router.post('/token')
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request
-) -> Token:
+    form_data: Annotated[OAuth2Form, Depends()], request: Request
+) -> Response:
     """
     Creating and saving access token to the session for base(without google) user auth
     """
-    user = await authenticate_user(form_data.username, form_data.password)
+    user = await authenticate_user(form_data.email, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -81,11 +80,14 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={'sub': form_data.username, 'scopes': form_data.scopes},
+        data={'sub': form_data.email, 'scopes': form_data.scopes},
         expires_delta=access_token_expires,
     )
     request.session['access_token'] = access_token
-    return Token(access_token=access_token, token_type='bearer')
+    return Response(
+        msg='Successfully set access token to the session',
+        status_code=status.HTTP_200_OK,
+    )
 
 
 @router.get('/logout')
