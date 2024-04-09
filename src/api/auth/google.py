@@ -42,7 +42,7 @@ async def get_user_info(code: str) -> GoogleUserInfo:
     return GoogleUserInfo(email=user_info['email'], name=user_info['name'])
 
 
-async def authenticate_user_from_google(email: str, full_name: str) -> AuthorInDB:
+async def authenticate_user_from_google(email: str, full_name: str) -> None:
     """Creating user if not exists yet"""
     async with get_engine(db_config).connect() as session:
         db = UserRepo(session)

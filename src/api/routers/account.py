@@ -133,7 +133,9 @@ async def create_new_offer(
     async with get_engine().connect() as session:
         db = OfferRepo(session)
         await db.add_offer(offer)
-    return Response(msg='Successfully created offer model', status_code=200)
+    return Response(
+        msg='Successfully created offer model', status_code=status.HTTP_201_CREATED
+    )
 
 
 @router.delete('/users/me/offers/delete')
@@ -147,7 +149,9 @@ async def delete_my_offer(
     async with get_engine().connect() as session:
         db = OfferRepo(session)
         await db.delete_offers_by_uuid(uuid)
-    return Response(msg='Successfully deleted offer model', status_code=201)
+    return Response(
+        msg='Successfully deleted offer model', status_code=status.HTTP_200_OK
+    )
 
 
 @router.delete('/users/me/offers/delete/all')
@@ -159,5 +163,7 @@ async def delete_all_my_offers(
     """Deleting all user offers"""
     async with get_engine().connect() as session:
         db = OfferRepo(session)
-        await db.delete_offers_by_author_id(current_user.account_id)
-    return Response(msg='Successfully deleted all offer models', status_code=201)
+        await db.delete_offers_by_author_id(current_user.account_id)  # type: ignore
+    return Response(
+        msg='Successfully deleted all offer models', status_code=status.HTTP_200_OK
+    )

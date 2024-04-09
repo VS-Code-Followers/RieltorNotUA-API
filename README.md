@@ -65,6 +65,12 @@ python -m poetry install --with test --no-root
 python -m pytest .
 ```
 
+## To use mypy
+
+```bash
+mypy --install-types
+```
+
 ## Also you can use ```scripts/gen/create_all.sh``` for generating data in DataBase 
 
 #### Note*: Before generating data you need create .venv and install all necessary dependencies

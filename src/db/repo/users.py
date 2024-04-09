@@ -3,6 +3,7 @@ from ...api.models.users import AuthorInDB, Author
 from ..models import Users
 from sqlalchemy import insert, select
 from pydantic import EmailStr
+from typing import Optional
 
 
 class UserRepo:
@@ -23,24 +24,27 @@ class UserRepo:
             select(*[cl for cl in Users.__table__.columns if cl.key != 'password'])
         )
         return [
-            Users(**dict(zip(self.user_params, i._tuple()))) for i in result.fetchall()
+            Author(**dict(zip(self.user_params, i._tuple()))) for i in result.fetchall()
         ]
 
-    async def get_password_by_email(self, email: EmailStr) -> str:
+    async def get_password_by_email(self, email: EmailStr) -> Optional[str]:
         """Getting password by user`s email"""
         result = await self.session.execute(
             select(Users.password).where(Users.email == email)
         )
         return result.scalars().first()
 
-    async def get_user_by_email(self, email: EmailStr) -> Author:
+    async def get_user_by_email(self, email: EmailStr) -> Optional[Author]:
         """Getting user by user`s email"""
         result = await self.session.execute(
             select(
                 *[cl for cl in Users.__table__.columns if cl.key != 'password']
             ).where(Users.email == email)
         )
-        return Author(**dict(zip(self.user_params, result.fetchone()._tuple())))
+        rows = result.fetchone()
+        if rows is None:
+            return None
+        return Author(**dict(zip(self.user_params, rows._tuple())))
 
     async def user_exists(self, email: EmailStr) -> bool:
         """Checking if user exists"""

@@ -51,7 +51,8 @@ class OfferRepo:
         """Getting ALL offers in the table"""
         result = await self.session.execute(select(Offers))
         return [
-            Offer(**dict(zip(self.offer_params, i._tuple()))) for i in result.fetchall()
+            Offer(**dict(zip(self.offer_params, i._tuple())))
+            for i in result.fetchall()  # type: ignore
         ]
 
     async def get_all_short_offfers(self) -> list[ShortOffer]:
@@ -70,7 +71,7 @@ class OfferRepo:
             ShortOffer(
                 **dict(
                     zip(
-                        self.short_offer_params,
+                        self.short_params,
                         [
                             n if ind != 5 else res._tuple()[5][0]
                             for ind, n in enumerate(res._tuple())
@@ -149,8 +150,9 @@ class OfferRepo:
                 elif value.area.to is not None:
                     exp.append(value.area.to >= Offers.area)
             else:
-                exp.append(Offers.price == value.price.value)
+                exp.append(Offers.area == value.area.value)
         result = await self.session.execute(select(Offers).where(*exp))
         return [
-            Offer(**dict(zip(self.offer_params, i._tuple()))) for i in result.fetchall()
+            Offer(**dict(zip(self.offer_params, i._tuple())))
+            for i in result.fetchall()  # type: ignore
         ]

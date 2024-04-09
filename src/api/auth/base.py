@@ -1,6 +1,6 @@
 from fastapi.security import SecurityScopes
 from fastapi import Request, HTTPException
-from ..models.users import AuthorInDB
+from ..models.users import Author
 from ...db.repo.users import UserRepo
 from src.config import get_config, get_engine
 from jose import JWTError, jwt
@@ -47,7 +47,7 @@ async def get_access_token(request: Request):
     return token
 
 
-async def authenticate_user(email: str, password: str) -> AuthorInDB:
+async def authenticate_user(email: str, password: str) -> Author | bool:
     """Getting user from DB. If user not exists or password is incorrect, returns False"""
     async with get_engine(db_config).connect() as session:
         db = UserRepo(session)
@@ -56,7 +56,10 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
             return False
         if not verify_password(password, password_from_db):
             return False
-        return await db.get_user_by_email(email)
+        user = await db.get_user_by_email(email)
+        if not user:
+            return False
+        return user
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -87,7 +90,7 @@ async def get_current_user(
     try:
         # Decoding token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: EmailStr = payload.get('sub')
+        email = payload.get('sub')
         if email is None:
             raise credentials_exception
         token_scopes = payload.get('scopes', [])

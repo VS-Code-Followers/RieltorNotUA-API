@@ -48,7 +48,7 @@ class Config(BaseSettings):
 @lru_cache
 def get_config() -> Config:
     """Get Base Config Model from ENV"""
-    return Config()
+    return Config()  # type: ignore
 
 
 def get_engine(config: DataBase = get_config().database) -> AsyncEngine:
