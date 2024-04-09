@@ -6,24 +6,22 @@ from fastapi import (
     HTTPException,
     status,
     Request,
-    Response,
 )
 from fastapi.responses import RedirectResponse
-from httpx import AsyncClient
 from fastapi.security import OAuth2PasswordRequestForm
-from ..auth import (
+from ..auth.base import (
     authenticate_user,
-    authenticate_user_from_google,
     create_access_token,
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
 from jose import jwt
-from ..auth.models import Token
+from ..models.auth import Token
 from ..models.users import Author
 from ..models.offers import Offer, OfferWithOutAuthor
 from ..models.base import Response
 from ...db.repo.offers import OfferRepo
+from ..auth.google import get_user_info, authenticate_user_from_google
 
 from typing import Annotated
 from datetime import timedelta
@@ -39,13 +37,6 @@ router = APIRouter(
 )
 
 
-@router.get('/')
-async def root_account() -> dict[str, str]:
-    return {
-        'account': 'there will be information about possible settings for user (maybe 😁)'
-    }
-
-
 @router.get('/login/google')
 async def login_google():
     return {
@@ -55,33 +46,17 @@ async def login_google():
 
 @router.get('/auth/google')
 async def auth_google(code: str, request: Request):
-    token_url = 'https://accounts.google.com/o/oauth2/token'
-    data = {
-        'code': code,
-        'client_id': auth.google_client_id,
-        'client_secret': auth.google_client_secret,
-        'redirect_uri': auth.google_redirect_uri,
-        'grant_type': 'authorization_code',
-    }
-    async with AsyncClient() as client:
-        response = await client.post(token_url, data=data)
-        google_access_token = response.json().get('access_token')
-
-        user_info = await client.get(
-            'https://www.googleapis.com/oauth2/v1/userinfo',
-            headers={'Authorization': f'Bearer {google_access_token}'},
-        )
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    email = user_info.json()['email']
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    user =  await get_user_info(code)
     access_token = create_access_token(
-        data={'sub': email}, expires_delta=access_token_expires
+        data={'sub':user.email}, expires_delta=access_token_expires
     )
-    await authenticate_user_from_google(email, user_info.json()['name'])
+    await authenticate_user_from_google(user.email, user.name)
     request.session['access_token'] = access_token
     return RedirectResponse('/')
 
 
-@router.get('/token')
+@router.get('/google/token')
 async def get_token(request: Request):
     access_token = request.session.get('access_token')
     if access_token:

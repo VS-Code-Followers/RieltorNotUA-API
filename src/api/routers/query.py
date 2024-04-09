@@ -4,7 +4,7 @@ from ...db.repo.users import UserRepo
 from ..models.offers import Offer
 from ..models.users import AuthorInDB, Author
 from ...config import get_engine
-from ..auth import get_password_hash
+from ..auth.base import get_password_hash
 from uuid import UUID
 from typing import Optional
 from pydantic import EmailStr

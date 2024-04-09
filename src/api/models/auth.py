@@ -22,3 +22,8 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: EmailStr
     scopes: list[str] = []
+    
+
+class GoogleUserInfo:
+    email: EmailStr
+    name: str
