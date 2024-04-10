@@ -135,6 +135,7 @@ async def logout(request: Request):
     return "No access token"
 
 
+
 @router.get('/users/me/')
 async def read_users_me(
     current_user: Annotated[Author, Security(get_current_user, scopes=['get_me'])],
