@@ -1,4 +1,5 @@
 from fastapi import (
+    Form,
     Security,
     logger,
     APIRouter,
@@ -6,7 +7,7 @@ from fastapi import (
     HTTPException,
     status,
     Request,
-    Response,
+    Response
 )
 from fastapi.responses import RedirectResponse
 from httpx import AsyncClient
@@ -48,9 +49,7 @@ async def root_account() -> dict[str, str]:
 
 @router.get('/login/google')
 async def login_google():
-    return {
-        'url': f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={auth.google_client_id}&redirect_uri={auth.google_redirect_uri}&scope=openid%20profile%20email&access_type=offline'
-    }
+    return RedirectResponse(f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={auth.google_client_id}&redirect_uri={auth.google_redirect_uri}&scope=openid%20profile%20email&access_type=offline')
 
 
 @router.get('/auth/google')
@@ -78,9 +77,9 @@ async def auth_google(code: str, request: Request):
     )
     await authenticate_user_from_google(email, user_info.json()['name'])
     request.session['access_token'] = access_token
-    return RedirectResponse('/')
+    return RedirectResponse('http://127.0.0.1:5173')
 
-
+# TODO: token expire validation
 @router.get('/token')
 async def get_token(request: Request):
     access_token = request.session.get('access_token')
@@ -103,6 +102,24 @@ async def login_for_access_token(
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={'sub': form_data.username, 'scopes': form_data.scopes},
+        expires_delta=access_token_expires,
+    )
+    request.session['access_token'] = access_token
+    return Token(access_token=access_token, token_type='bearer')
+
+	# test function, remove later
+@router.post('/token/test', response_model=Token)
+async def login_for_access_token(email: Annotated[str, Form()], password: Annotated[str, Form()], request: Request) -> Token:
+    user = await authenticate_user(email, password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Incorrect username or password',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={'sub': email, 'scopes': 'some scopes idk'},
         expires_delta=access_token_expires,
     )
     request.session['access_token'] = access_token
