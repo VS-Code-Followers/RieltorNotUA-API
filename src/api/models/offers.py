@@ -9,12 +9,30 @@ from .base import Location
 
 
 class OfferType(Enum):
+    """
+    OfferType Enum
+    attrs:
+        HOUSE = 'house'
+        FLAT = 'flat'
+        OFFICE = 'office'
+    """
+
     HOUSE = 'house'
     FLAT = 'flat'
     OFFICE = 'office'
 
 
 class BaseOffer(BaseModel):
+    """
+    BaseOffer pydantic model
+    attrs:
+        uuid: UUID
+        offer_type: str
+        price: NonNegativeInt
+        name: str
+        location: Location
+    """
+
     uuid: UUID
     offer_type: str
     price: NonNegativeInt
@@ -23,10 +41,36 @@ class BaseOffer(BaseModel):
 
 
 class ShortOffer(BaseOffer):
+    """
+    ShortOffer pydantic model
+    attrs:
+        uuid: UUID
+        offer_type: str
+        price: NonNegativeInt
+        name: str
+        location: Location
+        photo: UUID
+    """
+
     photo: UUID
 
 
 class OfferWithOutAuthor(BaseOffer):
+    """
+    OfferWithOutAuthor pydantic model
+    attrs:
+        uuid: UUID
+        offer_type: str
+        price: NonNegativeInt
+        name: str
+        location: Location
+        area: NonNegativeFloat
+        description: str
+        floor: NonNegativeInt
+        tags: Optional[dict]
+        photos: list[UUID]
+    """
+
     area: NonNegativeFloat
     description: str
     floor: NonNegativeInt
@@ -35,16 +79,50 @@ class OfferWithOutAuthor(BaseOffer):
 
 
 class Offer(OfferWithOutAuthor):
+    """
+    Offer pydantic model
+    attrs:
+        uuid: UUID
+        offer_type: str
+        price: NonNegativeInt
+        name: str
+        location: Location
+        area: NonNegativeFloat
+        description: str
+        floor: NonNegativeInt
+        tags: Optional[dict]
+        photos: list[UUID]
+    """
+
     author: Author
 
 
 class ValueSinceToValidate(BaseModel):
+    """
+    ValueSinceToValidate pydantic model
+    attrs:
+        value: Optional[NonNegativeInt] = None
+        since: Optional[NonNegativeInt] = None
+        to: Optional[NonNegativeInt] = None
+    """
+
     value: Optional[NonNegativeInt] = None
     since: Optional[NonNegativeInt] = None
     to: Optional[NonNegativeInt] = None
 
 
 class SearchValidate(BaseModel):
+    """
+    SearchValidate pydantic model
+    attrs:
+        offer_type: Optional[OfferType] = None
+        uuid: Optional[UUID] = None
+        author_id: Optional[int] = None
+        author_name: Optional[str] = None
+        price: Optional[ValueSinceToValidate] = None
+        area: Optional[ValueSinceToValidate] = None
+    """
+
     offer_type: Optional[OfferType] = None
     uuid: Optional[UUID] = None
     author_id: Optional[int] = None

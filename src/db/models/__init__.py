@@ -8,10 +8,14 @@ from sqlalchemy.dialects.postgresql import ARRAY, JSON
 
 
 class Base(DeclarativeBase):
+    """Base sqlalchemy class from declaring other tables"""
+
     pass
 
 
 class Offers(Base):
+    """View as a offers table class"""
+
     __tablename__ = 'offers'
     uuid: Mapped[ID] = mapped_column(UUID, primary_key=True)
     author: Mapped[dict] = mapped_column(JSON)
@@ -27,11 +31,15 @@ class Offers(Base):
 
 
 class Users(Base):
+    """View as a users table class"""
+
     __tablename__ = 'users'
     email: Mapped[str] = mapped_column(VARCHAR(50), unique=True)
     password: Mapped[str] = mapped_column(Text, unique=True, nullable=True)
     full_name: Mapped[str] = mapped_column(VARCHAR(100))
-    account_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    account_id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, autoincrement=True
+    )
     location: Mapped[dict] = mapped_column(JSON, nullable=True)
     offers: Mapped[list[ID]] = mapped_column(ARRAY(UUID), nullable=True)
     # active_offers: Mapped[int] = mapped_column(Integer, default=0)
