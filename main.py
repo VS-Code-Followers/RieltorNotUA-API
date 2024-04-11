@@ -17,6 +17,7 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:5173",
+    "https://localhost:5173",
     "http://127.0.0.1:5173",
 ]
 
@@ -29,6 +30,7 @@ app.add_middleware(
 )
 
 app.add_middleware(SessionMiddleware, secret_key="some-random-string",)
+
 
 log_level = logging.INFO
 logging.basicConfig(

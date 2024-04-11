@@ -52,6 +52,7 @@ async def authenticate_user(email: str, password: str) -> AuthorInDB:
             return False
         return await db.get_user_by_email(email)
 
+# questionable naming
 async def authenticate_user_from_google(email: str, full_name: str) -> AuthorInDB:
     async with get_engine(db_config).connect() as session:
         db = UserRepo(session)
@@ -65,8 +66,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        
     to_encode.update({'exp': expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    
     return encoded_jwt
 
 

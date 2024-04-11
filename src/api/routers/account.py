@@ -3,15 +3,10 @@ from fastapi import (
     Security,
     logger,
     APIRouter,
-    Depends,
     HTTPException,
     status,
-    Request,
-    Response
+    Request
 )
-from fastapi.responses import RedirectResponse
-from httpx import AsyncClient
-from fastapi.security import OAuth2PasswordRequestForm
 from ..auth import (
     authenticate_user,
     authenticate_user_from_google,
@@ -19,8 +14,11 @@ from ..auth import (
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
-from jose import jwt
-from ..auth.models import Token
+from jose import ExpiredSignatureError, jwt
+
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 from ..models.users import Author
 from ..models.offers import Offer, OfferWithOutAuthor
 from ..models.base import Response
@@ -47,69 +45,33 @@ async def root_account() -> dict[str, str]:
     }
 
 
-@router.get('/login/google')
-async def login_google():
-    return RedirectResponse(f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={auth.google_client_id}&redirect_uri={auth.google_redirect_uri}&scope=openid%20profile%20email&access_type=offline')
-
-
 @router.get('/auth/google')
-async def auth_google(code: str, request: Request):
-    token_url = 'https://accounts.google.com/o/oauth2/token'
-    data = {
-        'code': code,
-        'client_id': auth.google_client_id,
-        'client_secret': auth.google_client_secret,
-        'redirect_uri': auth.google_redirect_uri,
-        'grant_type': 'authorization_code',
-    }
-    async with AsyncClient() as client:
-        response = await client.post(token_url, data=data)
-        google_access_token = response.json().get('access_token')
-
-        user_info = await client.get(
-            'https://www.googleapis.com/oauth2/v1/userinfo',
-            headers={'Authorization': f'Bearer {google_access_token}'},
-        )
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    email = user_info.json()['email']
+async def auth_google(token: str, request: Request):
+    # clock_skew_in_seconds added because without it function throws exception "Token used too early"
+    user_info= id_token.verify_oauth2_token(token, requests.Request(), auth.google_client_id, clock_skew_in_seconds=10) 
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    email = user_info['email']
     access_token = create_access_token(
         data={'sub': email}, expires_delta=access_token_expires
     )
-    await authenticate_user_from_google(email, user_info.json()['name'])
+    await authenticate_user_from_google(email, user_info['name'])
     request.session['access_token'] = access_token
-    return RedirectResponse('http://127.0.0.1:5173')
 
-# TODO: token expire validation
-@router.get('/token')
+
+@router.get('/token', status_code=status.HTTP_200_OK)
 async def get_token(request: Request):
     access_token = request.session.get('access_token')
     if access_token:
-        return jwt.decode(access_token, auth.secret_key, algorithms=['HS256'])
-    return 'No JWT token'
+        try:
+            return jwt.decode(access_token, auth.secret_key, algorithms=['HS256'])
+        except ExpiredSignatureError:
+            return {'sub': 'Session expired'}
+    return {'sub':'No JWT'}
 
 
-@router.post('/token')
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request
-) -> Token:
-    user = await authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect username or password',
-            headers={'WWW-Authenticate': 'Bearer'},
-        )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={'sub': form_data.username, 'scopes': form_data.scopes},
-        expires_delta=access_token_expires,
-    )
-    request.session['access_token'] = access_token
-    return Token(access_token=access_token, token_type='bearer')
-
-	# test function, remove later
-@router.post('/token/test', response_model=Token)
-async def login_for_access_token(email: Annotated[str, Form()], password: Annotated[str, Form()], request: Request) -> Token:
+@router.post('/token', status_code=status.HTTP_204_NO_CONTENT)
+async def login_for_access_token(email: Annotated[str, Form()], password: Annotated[str, Form()], request: Request):
     user = await authenticate_user(email, password)
     if not user:
         raise HTTPException(
@@ -119,11 +81,11 @@ async def login_for_access_token(email: Annotated[str, Form()], password: Annota
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
+        # scopes question
         data={'sub': email, 'scopes': 'some scopes idk'},
-        expires_delta=access_token_expires,
+        expires_delta=access_token_expires
     )
     request.session['access_token'] = access_token
-    return Token(access_token=access_token, token_type='bearer')
 
 
 @router.get('/logout')
@@ -133,7 +95,6 @@ async def logout(request: Request):
         request.session['access_token'] = ''
         return "Logout successful"
     return "No access token"
-
 
 
 @router.get('/users/me/')
