@@ -1,4 +1,5 @@
 from fastapi import (
+    Depends,
     Form,
     Security,
     logger,
@@ -7,6 +8,8 @@ from fastapi import (
     status,
     Request
 )
+
+from ..models.auth import OAuth2Form
 from ..auth.base import (
     authenticate_user,
     create_access_token,
@@ -61,11 +64,11 @@ async def get_token(request: Request):
 
 
 @router.post('/token', status_code=status.HTTP_204_NO_CONTENT)
-async def login_for_access_token(email: Annotated[str, Form()], password: Annotated[str, Form()], request: Request):
+async def login_for_access_token(form_data: Annotated[OAuth2Form, Depends()], request: Request):
     """
     Creating and saving access token to the session for base(without google) user auth
     """
-    user = await authenticate_user(email, password)
+    user = await authenticate_user(form_data.email, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -75,7 +78,7 @@ async def login_for_access_token(email: Annotated[str, Form()], password: Annota
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         # scopes question
-        data={'sub': email, 'scopes': 'some scopes idk'},
+        data={'sub': form_data.email, 'scopes': form_data.scopes},
         expires_delta=access_token_expires
     )
     request.session['access_token'] = access_token
