@@ -13,6 +13,7 @@ sqlalchemy = "^2.0.25"
 alembic = "^1.13.1"
 asyncpg = "^0.29.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 
 
 [tool.poetry.group.test.dependencies]
@@ -78,3 +79,10 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 docstring-code-format = false
 docstring-code-line-length = "dynamic"
+
+
+[tool.mypy]
+python_version = "3.10"
+explicit_package_bases = true
+exclude = ["scripts/gen/src", "src/db/migrations", "tests/"]
+warn_no_return = false
