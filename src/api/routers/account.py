@@ -37,6 +37,7 @@ router = APIRouter(
 
 @router.get('/auth/google')
 async def auth_google(token: str, request: Request):
+    """Creating access_token for user"""
     user = await get_user_info(token)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -61,6 +62,9 @@ async def get_token(request: Request):
 
 @router.post('/token', status_code=status.HTTP_204_NO_CONTENT)
 async def login_for_access_token(email: Annotated[str, Form()], password: Annotated[str, Form()], request: Request):
+    """
+    Creating and saving access token to the session for base(without google) user auth
+    """
     user = await authenticate_user(email, password)
     if not user:
         raise HTTPException(
