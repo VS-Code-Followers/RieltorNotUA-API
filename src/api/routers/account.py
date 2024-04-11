@@ -46,7 +46,7 @@ async def auth_google(token: str, request: Request):
     # Saving accsess token to the session
     request.session['access_token'] = access_token
 
-
+# TODO: think about refresh token
 @router.get('/token', status_code=status.HTTP_200_OK)
 async def get_token(request: Request):
     """Getting data from access token"""
@@ -68,7 +68,7 @@ async def login_for_access_token(email: Annotated[str, Form()], password: Annota
             detail='Incorrect username or password',
             headers={'WWW-Authenticate': 'Bearer'},
         )
-    access_token_expires = timedelta(minutes=1)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         # scopes question
         data={'sub': email, 'scopes': 'some scopes idk'},
