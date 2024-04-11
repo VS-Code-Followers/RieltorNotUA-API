@@ -3,7 +3,7 @@ from fastapi import Request, HTTPException
 from ..models.users import Author
 from ...db.repo.users import UserRepo
 from src.config import get_config, get_engine
-from jose import JWTError, jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from pydantic import ValidationError, EmailStr
@@ -109,5 +109,7 @@ async def get_current_user(
             db = UserRepo(session)
             # returning User from DB
             return await db.get_user_by_email(email)
-    except (JWTError, ValidationError):
+    # TODO: add ExpiredSignatureError handling
+    except (JWTError, ValidationError, ExpiredSignatureError):
         raise credentials_exception
+        

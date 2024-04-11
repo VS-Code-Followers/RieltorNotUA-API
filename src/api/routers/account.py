@@ -1,27 +1,30 @@
 from fastapi import (
+    Depends,
+    Form,
     Security,
     logger,
     APIRouter,
-    Depends,
     HTTPException,
     status,
-    Request,
+    Request
 )
-from fastapi.responses import RedirectResponse
+
+from ..models.auth import OAuth2Form
 from ..auth.base import (
     authenticate_user,
     create_access_token,
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     SECRET_KEY,
+    ALGORITHM
 )
-from jose import jwt
-from ..models.auth import OAuth2Form
+from jose import ExpiredSignatureError, jwt
+
 from ..models.users import Author
 from ..models.offers import Offer, OfferWithOutAuthor
 from ..models.base import Response
 from ...db.repo.offers import OfferRepo
-from ..auth.google import get_user_info, authenticate_user_from_google, GOOGLE_LOGIN_URL
+from ..auth.google import get_user_info, authenticate_user_from_google
 
 from typing import Annotated
 from datetime import timedelta
@@ -35,39 +38,33 @@ router = APIRouter(
 )
 
 
-@router.get('/login/google')
-async def login_google():
-    """Login to the Google account"""
-    return {'url': GOOGLE_LOGIN_URL}
-
-
 @router.get('/auth/google')
-async def auth_google(code: str, request: Request):
+async def auth_google(token: str, request: Request):
     """Creating access_token for user"""
+    user = await get_user_info(token)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    user = await get_user_info(code)
     access_token = create_access_token(
         data={'sub': user.email}, expires_delta=access_token_expires
     )
     await authenticate_user_from_google(user.email, user.name)
     # Saving accsess token to the session
     request.session['access_token'] = access_token
-    return RedirectResponse('/')
 
-
-@router.get('/google/token')
+# TODO: think about refresh token
+@router.get('/token', status_code=status.HTTP_200_OK)
 async def get_token(request: Request):
     """Getting data from access token"""
     access_token = request.session.get('access_token')
     if access_token:
-        return jwt.decode(access_token, SECRET_KEY, algorithms=['HS256'])
-    return 'No JWT token'
+        try:
+            return jwt.decode(access_token, SECRET_KEY, algorithms=ALGORITHM)
+        except ExpiredSignatureError:
+            return {'sub': 'Session expired'}
+    return {'sub':'No JWT'}
 
 
-@router.post('/token')
-async def login_for_access_token(
-    form_data: Annotated[OAuth2Form, Depends()], request: Request
-) -> Response:
+@router.post('/token', status_code=status.HTTP_204_NO_CONTENT)
+async def login_for_access_token(form_data: Annotated[OAuth2Form, Depends()], request: Request):
     """
     Creating and saving access token to the session for base(without google) user auth
     """
@@ -80,14 +77,11 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
+        # scopes question
         data={'sub': form_data.email, 'scopes': form_data.scopes},
-        expires_delta=access_token_expires,
+        expires_delta=access_token_expires
     )
     request.session['access_token'] = access_token
-    return Response(
-        msg='Successfully set access token to the session',
-        status_code=status.HTTP_200_OK,
-    )
 
 
 @router.get('/logout')
@@ -98,7 +92,6 @@ async def logout(request: Request):
         request.session['access_token'] = ''
         return 'Logout successful'
     return 'No access token'
-
 
 @router.get('/users/me/')
 async def read_users_me(
