@@ -7,8 +7,6 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 class Auth(BaseModel):
     google_client_id: str
-    google_client_secret: str
-    google_redirect_uri: str
     client_secret: str
     secret_key: str
     algorithm: str
