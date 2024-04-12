@@ -2,7 +2,6 @@ from fastapi import (
     Depends,
     Form,
     Security,
-    logger,
     APIRouter,
     HTTPException,
     status,
@@ -21,10 +20,11 @@ from ..auth.base import (
 from jose import ExpiredSignatureError, jwt
 
 from ..models.users import Author
-from ..models.offers import Offer, OfferWithOutAuthor
-from ..models.base import Response
+from ..models.offers import Offer, OfferWithOutAuthor, InputOffer
+from ..models.base import Response, Location
 from ...db.repo.offers import OfferRepo
 from ..auth.google import get_user_info, authenticate_user_from_google
+from ..tools.geocoding import get_full_adress
 
 from typing import Annotated
 from datetime import timedelta
@@ -118,11 +118,17 @@ async def create_new_offer(
     current_user: Annotated[
         Author, Security(get_current_user, scopes=['create_offer'])
     ],
-    data: OfferWithOutAuthor,
+    data: InputOffer,
 ) -> Response:
     """Creating offer by user"""
-    logger.logger.info(data)
-    offer = Offer(author=current_user, **data.model_dump())
+    offer = Offer(
+        author=current_user, 
+        location=Location(
+            text=await get_full_adress(data.location),
+            coordinate=data.location
+        ),
+        **data.model_dump(exclude="location")
+    )
     async with get_engine().connect() as session:
         db = OfferRepo(session)
         await db.add_offer(offer)
