@@ -14,6 +14,12 @@ class Auth(BaseModel):
     access_token_expire_minutes: int
 
 
+class Tools(BaseModel):
+    """Tools Config Model"""
+
+    geocoding_api_key: str
+
+
 class FastAPI(BaseModel):
     """FastAPI Config Model"""
 
@@ -38,6 +44,7 @@ class Config(BaseSettings):
 
     fastapi: FastAPI
     database: DataBase
+    tools: Tools
     model_config = SettingsConfigDict(
         env_nested_delimiter='__', env_file='.config/api.env'
     )
