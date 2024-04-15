@@ -6,7 +6,7 @@ from src.config import get_config, get_engine
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from pydantic import ValidationError, EmailStr
+from pydantic import ValidationError
 from ..models.auth import TokenData
 from fastapi import Depends, status
 from typing import Optional, Annotated
@@ -112,4 +112,3 @@ async def get_current_user(
     # TODO: add ExpiredSignatureError handling
     except (JWTError, ValidationError, ExpiredSignatureError):
         raise credentials_exception
-        

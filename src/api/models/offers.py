@@ -94,7 +94,7 @@ class InputOffer(OfferWithOutAuthor):
         photos: list[UUID]
     """
 
-    location: Coordinate # type: ignore
+    location: Coordinate  # type: ignore
 
 
 class Offer(OfferWithOutAuthor):

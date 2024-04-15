@@ -19,8 +19,10 @@ async def get_user_info(token: str) -> GoogleUserInfo:
     Takes code from google and returns GoogleUserInfo model
     """
     # clock_skew_in_seconds added because without it function throws exception "Token used too early"
-    user_info = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID, clock_skew_in_seconds=10) 
-   
+    user_info = id_token.verify_oauth2_token(
+        token, requests.Request(), GOOGLE_CLIENT_ID, clock_skew_in_seconds=10
+    )
+
     return GoogleUserInfo(email=user_info['email'], name=user_info['name'])
 
 
