@@ -127,7 +127,7 @@ async def create_new_offer(
             text=await get_full_adress(data.location),
             coordinate=data.location
         ),
-        **data.model_dump(exclude="location")
+        **data.model_dump(exclude={"location"})
     )
     async with get_engine().connect() as session:
         db = OfferRepo(session)
