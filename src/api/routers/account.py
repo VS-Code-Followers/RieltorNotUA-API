@@ -1,6 +1,5 @@
 from fastapi import (
     Depends,
-    Form,
     Security,
     logger,
     APIRouter,
@@ -8,15 +7,21 @@ from fastapi import (
     status,
     Request
 )
+from fastapi.responses import JSONResponse
+from pydantic import EmailStr
 
 from ..models.auth import OAuth2Form
 from ..auth.base import (
     authenticate_user,
+    change_user_password,
     create_access_token,
+    generate_password_reset_token,
     get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     SECRET_KEY,
-    ALGORITHM
+    ALGORITHM,
+    send_password_recovery_email,
+    verify_password_reset_token
 )
 from jose import ExpiredSignatureError, jwt
 
@@ -38,6 +43,30 @@ router = APIRouter(
 )
 
 
+@router.post("/password-recovery")
+async def recover_password(email: EmailStr) -> JSONResponse:
+    """
+    Generating password recovery token and sending email with recovery link
+    """
+    password_reset_token = generate_password_reset_token(email)
+    await send_password_recovery_email(email, password_reset_token)
+    
+    return JSONResponse(status_code=200, content={"message": "Email has been sent"})
+  
+  
+@router.post("/reset-password")
+async def reset_password(new_password: str, token: str) -> JSONResponse:
+    """
+    Resetting password
+    """
+    email = verify_password_reset_token(token=token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid token")
+    
+    await change_user_password(email, new_password)
+    return JSONResponse(status_code=200, content={"message": "Password updated successfully"})
+  
+        
 @router.get('/auth/google')
 async def auth_google(token: str, request: Request):
     """Creating access_token for user"""

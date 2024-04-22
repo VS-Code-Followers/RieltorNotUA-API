@@ -12,6 +12,11 @@ class Auth(BaseModel):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    email_reset_token_expire_hours: int
+    mail: str
+    password: str
+    mail_port: int
+    mail_server: str
 
 
 class FastAPI(BaseModel):
