@@ -1,12 +1,14 @@
+from pathlib import Path
 from fastapi.security import SecurityScopes
 from fastapi import Request, HTTPException
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 from ..models.users import Author
 from ...db.repo.users import UserRepo
 from src.config import get_config, get_engine
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from pydantic import ValidationError
+from pydantic import EmailStr, ValidationError
 from ..models.auth import TokenData
 from fastapi import Depends, status
 from typing import Optional, Annotated
@@ -20,7 +22,21 @@ db_config = config.database
 SECRET_KEY = auth_config.secret_key
 ALGORITHM = auth_config.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = auth_config.access_token_expire_minutes
+HOST = config.fastapi.host
+EMAIL_RESET_TOKEN_EXPIRE_HOURS = auth_config.email_reset_token_expire_hours 
 
+
+conf = ConnectionConfig(
+    MAIL_USERNAME = auth_config.mail,
+    MAIL_PASSWORD = auth_config.password,
+    MAIL_FROM = auth_config.mail,
+    MAIL_PORT = auth_config.mail_port,
+    MAIL_SERVER = auth_config.mail_server,
+    MAIL_STARTTLS = False,
+    MAIL_SSL_TLS = True,
+    USE_CREDENTIALS = True,
+    TEMPLATE_FOLDER = Path(__file__).parent / 'email-templates'/ 'build'
+)
 
 # CryptoContext to encrypt credentials
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -112,3 +128,64 @@ async def get_current_user(
     # TODO: add ExpiredSignatureError handling
     except (JWTError, ValidationError, ExpiredSignatureError):
         raise credentials_exception
+
+
+async def send_password_recovery_email(email: EmailStr, token: str):
+	"""
+	Sending email with password recovery link
+	"""
+	async with get_engine().connect() as session:
+		db = UserRepo(session)
+		user = await db.get_user_by_email(email)
+		if not user:
+			raise HTTPException(
+				status_code=404,
+				detail="The user with this email does not exist in the system.",
+			)
+            
+	subject = f"RieltorNotUA - Password recovery for user {user.full_name}"
+	link=f"{HOST}/reset-password?token={token}"
+
+	message = MessageSchema(
+		subject=subject,
+		recipients=[email],
+		template_body={'project_name': "RieltorNotUA", 'username': user.full_name,"valid_hours": EMAIL_RESET_TOKEN_EXPIRE_HOURS, 'link': link},
+		subtype=MessageType.html)
+
+	fm = FastMail(conf)
+	await fm.send_message(message, template_name="reset_password.html")
+
+
+def generate_password_reset_token(email: EmailStr) -> str:
+	"""
+	Generating token for resetting password with email
+	"""
+	expires = datetime.now(timezone.utc) + timedelta(hours=EMAIL_RESET_TOKEN_EXPIRE_HOURS)
+	encoded_jwt = jwt.encode(
+		{"exp": expires, "sub": email}, SECRET_KEY, algorithm=ALGORITHM)
+	return encoded_jwt
+
+
+def verify_password_reset_token(token: str) -> str | None:
+    """
+	Verifing token for resetting password with email
+	"""
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        return str(decoded_token["sub"])
+    except JWTError:
+        return None
+    
+async def change_user_password(email: EmailStr, new_password: str):
+	"""
+	Changing user password after resetting/recovering
+	"""
+	async with get_engine().connect() as session:
+		db = UserRepo(session)
+		if not await db.user_exists(email):
+			raise HTTPException(
+				status_code=404,
+				detail="The user with this email does not exist in the system.",
+			)
+		hashed_password = get_password_hash(new_password)
+		await db.change_user_password(email, hashed_password)

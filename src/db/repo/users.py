@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
 from ...api.models.users import AuthorInDB, Author
 from ..models import Users
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from pydantic import EmailStr
 from typing import Optional
 
@@ -52,3 +52,8 @@ class UserRepo:
         if result.first():
             return True
         return False
+    
+    async def change_user_password(self, email: EmailStr, new_password: str) -> bool:
+        """Changing user's password"""
+        await self.session.execute(update(Users).where(Users.email == email).values(password = new_password))
+        await self.session.commit()
