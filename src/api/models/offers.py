@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic_core import PydanticCustomError
 from pydantic import model_validator, BaseModel, NonNegativeInt, NonNegativeFloat
 from .users import Author
+from .base import Location, Coordinate
 
 
 class OfferType(Enum):
@@ -77,6 +78,44 @@ class OfferWithOutAuthor(BaseOffer):
     photos: list[UUID]  # UUID of photos
 
 
+class InputOffer(OfferWithOutAuthor):
+    """
+    InputOffer pydantic model
+    attrs:
+        uuid: UUID
+        offer_type: str
+        price: NonNegativeInt
+        name: str
+        location: Coordinate
+        area: NonNegativeFloat
+        description: str
+        floor: NonNegativeInt
+        tags: Optional[dict]
+        photos: list[UUID]
+    """
+
+    location: Coordinate  # type: ignore
+
+
+class Offer(OfferWithOutAuthor):
+    """
+    Offer pydantic model
+    attrs:
+        uuid: UUID
+        offer_type: str
+        price: NonNegativeInt
+        name: str
+        location: Location
+        area: NonNegativeFloat
+        description: str
+        floor: NonNegativeInt
+        tags: Optional[dict]
+        photos: list[UUID]
+    """
+
+    author: Author
+
+
 class ValueSinceToValidate(BaseModel):
     """
     ValueSinceToValidate pydantic model
@@ -92,6 +131,18 @@ class ValueSinceToValidate(BaseModel):
 
 
 class SearchValidate(BaseModel):
+    """
+    SearchValidate pydantic model
+    attrs:
+        offer_type: Optional[OfferType] = None
+        uuid: Optional[UUID] = None
+        author_id: Optional[int] = None
+        author_name: Optional[str] = None
+        price: Optional[ValueSinceToValidate] = None
+        area: Optional[ValueSinceToValidate] = None
+        location: Optional[Coordinate] = None
+    """
+
     offer_type: Optional[OfferType] = None
     uuid: Optional[UUID] = None
     author_id: Optional[int] = None
