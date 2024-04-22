@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncConnection
-from sqlalchemy import insert, select, delete, BIGINT
+from sqlalchemy import insert, select, delete, BIGINT, cast
+from sqlalchemy.dialects.postgresql import JSONB
 from uuid import UUID
 from ..models import Offers
 from ...api.models.offers import Offer, SearchValidate, ShortOffer, OfferWithOutAuthor
@@ -51,7 +52,7 @@ class OfferRepo:
         """Getting ALL offers in the table"""
         result = await self.session.execute(select(Offers))
         return [
-            Offer(**dict(zip(self.offer_params, i._tuple())))
+            Offer(**dict(zip(self.offer_params, i._tuple())))  # type: ignore
             for i in result.fetchall()  # type: ignore
         ]
 
@@ -124,6 +125,10 @@ class OfferRepo:
             )
         if value.author_name is not None:
             exp.append(Offers.author['name'].astext == value.author_name)
+        if value.location is not None:
+            exp.append(
+                cast(Offers.location['coordinate'], JSONB) == value.location.__dict__
+            )
         if value.price is not None:
             if value.price.value is None:
                 if (value.price.since is not None) and (value.price.to is not None):
@@ -153,6 +158,6 @@ class OfferRepo:
                 exp.append(Offers.area == value.area.value)
         result = await self.session.execute(select(Offers).where(*exp))
         return [
-            Offer(**dict(zip(self.offer_params, i._tuple())))
+            Offer(**dict(zip(self.offer_params, i._tuple())))  # type: ignore
             for i in result.fetchall()  # type: ignore
         ]

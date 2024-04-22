@@ -1,15 +1,6 @@
-from fastapi import (
-    Depends,
-    Security,
-    logger,
-    APIRouter,
-    HTTPException,
-    status,
-    Request
-)
+from fastapi import Depends, Security, APIRouter, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from pydantic import EmailStr
-
 from ..models.auth import OAuth2Form
 from ..auth.base import (
     authenticate_user,
@@ -26,10 +17,11 @@ from ..auth.base import (
 from jose import ExpiredSignatureError, jwt
 
 from ..models.users import Author
-from ..models.offers import Offer, OfferWithOutAuthor
-from ..models.base import Response
+from ..models.offers import Offer, OfferWithOutAuthor, InputOffer
+from ..models.base import Response, Location
 from ...db.repo.offers import OfferRepo
 from ..auth.google import get_user_info, authenticate_user_from_google
+from ..tools.geocoding import get_full_adress
 
 from typing import Annotated
 from datetime import timedelta
@@ -89,11 +81,13 @@ async def get_token(request: Request):
             return jwt.decode(access_token, SECRET_KEY, algorithms=ALGORITHM)
         except ExpiredSignatureError:
             return {'sub': 'Session expired'}
-    return {'sub':'No JWT'}
+    return {'sub': 'No JWT'}
 
 
 @router.post('/token', status_code=status.HTTP_204_NO_CONTENT)
-async def login_for_access_token(form_data: Annotated[OAuth2Form, Depends()], request: Request):
+async def login_for_access_token(
+    form_data: Annotated[OAuth2Form, Depends()], request: Request
+):
     """
     Creating and saving access token to the session for base(without google) user auth
     """
@@ -108,7 +102,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2Form, Depends()], re
     access_token = create_access_token(
         # scopes question
         data={'sub': form_data.email, 'scopes': form_data.scopes},
-        expires_delta=access_token_expires
+        expires_delta=access_token_expires,
     )
     request.session['access_token'] = access_token
 
@@ -121,6 +115,7 @@ async def logout(request: Request):
         request.session['access_token'] = ''
         return 'Logout successful'
     return 'No access token'
+
 
 @router.get('/users/me/')
 async def read_users_me(
@@ -147,11 +142,16 @@ async def create_new_offer(
     current_user: Annotated[
         Author, Security(get_current_user, scopes=['create_offer'])
     ],
-    data: OfferWithOutAuthor,
+    data: InputOffer,
 ) -> Response:
     """Creating offer by user"""
-    logger.logger.info(data)
-    offer = Offer(author=current_user, **data.model_dump())
+    offer = Offer(
+        author=current_user,
+        location=Location(
+            text=await get_full_adress(data.location), coordinate=data.location
+        ),
+        **data.model_dump(exclude={'location'}),
+    )
     async with get_engine().connect() as session:
         db = OfferRepo(session)
         await db.add_offer(offer)

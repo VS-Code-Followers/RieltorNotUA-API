@@ -86,3 +86,8 @@ python_version = "3.10"
 explicit_package_bases = true
 exclude = ["scripts/gen/src", "src/db/migrations", "tests/"]
 warn_no_return = false
+
+
+[[tool.mypy.overrides]]
+module = "google.*"
+ignore_missing_imports = true
